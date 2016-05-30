@@ -275,7 +275,7 @@ Public Class frmMain
                                             str = str.Replace("|", ",")
                                             msg = String.Format("The following {0} systems in the portfolio are at risk for operational interruptions given their dependencies on outdated and obsolete technologies:  {1}", cnt, str)
                                         Else
-                                            msg = String.Format("The [system] {0} is at risk for operational interruptions given its reliance on outdated and obsolete technologies.", str)
+                                            msg = String.Format("The [system] {0} is at risk for operational interruptions given its reliance on outdated and obsolete technologies.", observations(d))
                                         End If
                                         msg = msg & Environment.NewLine & "Recommendation:  Begin planning a technology refresh or solution replacement to ensure proper continuity of services."
 
