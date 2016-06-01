@@ -1,9 +1,9 @@
-﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()> _
+﻿<Global.Microsoft.VisualBasic.CompilerServices.DesignerGenerated()>
 Partial Class frmMain
     Inherits System.Windows.Forms.Form
 
     'Form overrides dispose to clean up the component list.
-    <System.Diagnostics.DebuggerNonUserCode()> _
+    <System.Diagnostics.DebuggerNonUserCode()>
     Protected Overrides Sub Dispose(ByVal disposing As Boolean)
         Try
             If disposing AndAlso components IsNot Nothing Then
@@ -20,7 +20,7 @@ Partial Class frmMain
     'NOTE: The following procedure is required by the Windows Form Designer
     'It can be modified using the Windows Form Designer.  
     'Do not modify it using the code editor.
-    <System.Diagnostics.DebuggerStepThrough()> _
+    <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.Panel1 = New System.Windows.Forms.Panel()
         Me.ProgressBarStyle = New System.Windows.Forms.StatusStrip()
@@ -36,47 +36,51 @@ Partial Class frmMain
         'Panel1
         '
         Me.Panel1.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-        Me.Panel1.Controls.Add(Me.ProgressBarStyle)
         Me.Panel1.Controls.Add(Me.btnImport)
-        Me.Panel1.Location = New System.Drawing.Point(-1, 559)
-        Me.Panel1.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.Panel1.Location = New System.Drawing.Point(-1, 364)
+        Me.Panel1.Margin = New System.Windows.Forms.Padding(4)
         Me.Panel1.Name = "Panel1"
-        Me.Panel1.Size = New System.Drawing.Size(992, 86)
+        Me.Panel1.Size = New System.Drawing.Size(797, 89)
         Me.Panel1.TabIndex = 0
         '
         'ProgressBarStyle
         '
+        Me.ProgressBarStyle.Anchor = CType(((System.Windows.Forms.AnchorStyles.Bottom Or System.Windows.Forms.AnchorStyles.Left) _
+            Or System.Windows.Forms.AnchorStyles.Right), System.Windows.Forms.AnchorStyles)
         Me.ProgressBarStyle.AutoSize = False
+        Me.ProgressBarStyle.Dock = System.Windows.Forms.DockStyle.None
         Me.ProgressBarStyle.ImageScalingSize = New System.Drawing.Size(20, 20)
-        Me.ProgressBarStyle.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.pbarProgress, Me.lblStatus})
-        Me.ProgressBarStyle.Location = New System.Drawing.Point(0, 48)
+        Me.ProgressBarStyle.Items.AddRange(New System.Windows.Forms.ToolStripItem() {Me.lblStatus, Me.pbarProgress})
+        Me.ProgressBarStyle.Location = New System.Drawing.Point(-1, 415)
         Me.ProgressBarStyle.Name = "ProgressBarStyle"
         Me.ProgressBarStyle.Padding = New System.Windows.Forms.Padding(18, 0, 1, 0)
         Me.ProgressBarStyle.RightToLeft = System.Windows.Forms.RightToLeft.Yes
-        Me.ProgressBarStyle.Size = New System.Drawing.Size(992, 38)
+        Me.ProgressBarStyle.Size = New System.Drawing.Size(797, 38)
         Me.ProgressBarStyle.SizingGrip = False
         Me.ProgressBarStyle.TabIndex = 1
         Me.ProgressBarStyle.Text = "StatusStrip1"
         '
         'pbarProgress
         '
+        Me.pbarProgress.AutoSize = False
         Me.pbarProgress.ForeColor = System.Drawing.Color.Lime
         Me.pbarProgress.Name = "pbarProgress"
-        Me.pbarProgress.Size = New System.Drawing.Size(300, 16)
+        Me.pbarProgress.Size = New System.Drawing.Size(300, 32)
+        Me.pbarProgress.Visible = False
         '
         'lblStatus
         '
         Me.lblStatus.Name = "lblStatus"
-        Me.lblStatus.Size = New System.Drawing.Size(0, 17)
+        Me.lblStatus.Size = New System.Drawing.Size(0, 33)
         '
         'btnImport
         '
-        Me.btnImport.Location = New System.Drawing.Point(822, 4)
-        Me.btnImport.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.btnImport.Location = New System.Drawing.Point(671, 4)
+        Me.btnImport.Margin = New System.Windows.Forms.Padding(4)
         Me.btnImport.Name = "btnImport"
         Me.btnImport.Size = New System.Drawing.Size(111, 40)
         Me.btnImport.TabIndex = 0
-        Me.btnImport.Text = "Import"
+        Me.btnImport.Text = "Run"
         Me.btnImport.UseVisualStyleBackColor = True
         '
         'BackgroundWorker1
@@ -86,12 +90,12 @@ Partial Class frmMain
         '
         'txtOutput
         '
-        Me.txtOutput.Location = New System.Drawing.Point(-1, 2)
-        Me.txtOutput.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.txtOutput.Location = New System.Drawing.Point(-1, 1)
+        Me.txtOutput.Margin = New System.Windows.Forms.Padding(4)
         Me.txtOutput.Multiline = True
         Me.txtOutput.Name = "txtOutput"
         Me.txtOutput.ScrollBars = System.Windows.Forms.ScrollBars.Vertical
-        Me.txtOutput.Size = New System.Drawing.Size(992, 548)
+        Me.txtOutput.Size = New System.Drawing.Size(797, 359)
         Me.txtOutput.TabIndex = 1
         '
         'frmMain
@@ -99,11 +103,12 @@ Partial Class frmMain
         Me.AutoScaleDimensions = New System.Drawing.SizeF(10.0!, 20.0!)
         Me.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font
         Me.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink
-        Me.ClientSize = New System.Drawing.Size(991, 651)
+        Me.ClientSize = New System.Drawing.Size(798, 455)
+        Me.Controls.Add(Me.ProgressBarStyle)
         Me.Controls.Add(Me.txtOutput)
         Me.Controls.Add(Me.Panel1)
         Me.Font = New System.Drawing.Font("Microsoft Sans Serif", 10.0!, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, CType(0, Byte))
-        Me.Margin = New System.Windows.Forms.Padding(4, 4, 4, 4)
+        Me.Margin = New System.Windows.Forms.Padding(4)
         Me.Name = "frmMain"
         Me.Text = "FY2018 IT Assessment Data Processor"
         Me.Panel1.ResumeLayout(False)

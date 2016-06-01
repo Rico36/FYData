@@ -52,7 +52,7 @@ Public Class frmMain
     End Enum
     Private Sub frmMain_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
         rs.FindAllControls(Me)
-        '*** Define a list of Excel worksheet names to exlude from processing. ***
+        '*** open a File Dialog Box to allow the user to select a folder
         If apppath = "" Then
             Dim dialog As New FolderBrowserDialog()
             dialog.RootFolder = Environment.SpecialFolder.Desktop
@@ -86,7 +86,7 @@ Public Class frmMain
             Me.txtOutput.Text = "Processing... please wait" & Environment.NewLine
 
             '*** Retrieve a list of OSIM Excel files from a given directory. ***
-            Dim files As List(Of String) = GetOSIMFiles("C:\Temp")
+            Dim files As List(Of String) = GetOSIMFiles(apppath)
 
             '*** Proceed only if there is one or more files. ***
             If Not files Is Nothing AndAlso files.Count > 0 Then
@@ -106,17 +106,17 @@ Public Class frmMain
 
             Else
 
-                System.Windows.Forms.MessageBox.Show("There is no file to process in the specified directory.",
+                System.Windows.Forms.MessageBox.Show("There is no file (.xls) to process in the specified directory.",
                 "Action Terminated", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Warning)
 
-                Me.btnImport.Enabled = True
                 Me.txtOutput.Text = "Action terminated."
 
             End If
 
         Catch ex As Exception
 
-            System.Windows.Forms.MessageBox.Show(ex.ToString, "Application Error",
+            Me.txtOutput.Text = "Action terminated."
+            System.Windows.Forms.MessageBox.Show(ex.Message, "Application Error",
                                                  System.Windows.Forms.MessageBoxButtons.OK,
                                                  System.Windows.Forms.MessageBoxIcon.Error)
 
@@ -597,7 +597,6 @@ Public Class frmMain
         Catch ex As Exception
             trace(ex.Message)
         End Try
-        Me.BackgroundWorker1.ReportProgress(100, "Completed.")
     End Sub
     Private Sub trace(ByVal str As String)
         Me.txtOutput.AppendText(str & Environment.NewLine)
