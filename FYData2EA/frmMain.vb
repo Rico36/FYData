@@ -324,14 +324,14 @@ Public Class frmMain
                                             msg2 = msg2 & Environment.NewLine & "Recommendation: Shared Services can save money to the taxpayers while helping to standardize process and increase effciencies across the organization. Contact EITPO's Enterprise Architects to learn how to position some of these systems as shared services."
                                         Case id.futureState
                                             If cnt2 > 9 Then
-                                                msg2 = String.Format("Exactly {0} systems in the portfolio were flaged for potential consolidation or replacement based on existing and improved alternatives.", cnt2)
-                                            ElseIf cnt2 > 1 Then
+                                            msg2 = String.Format("Exactly {0} systems in the portfolio were flagged for potential consolidation or replacement based on existing and improved alternatives.", cnt2)
+                                        ElseIf cnt2 > 1 Then
                                                 str = ReplaceLastOccurrence(observations2(d), "|", " and")
                                                 str = str.Replace("|", ", ")
-                                                msg2 = String.Format("The following {0} systems in the portfolio were flaged for potential consolidation or replacement based on existing and improved alternatives:  {1}", cnt2, str)
-                                            Else
-                                                msg2 = String.Format("The [system] {0} was flaged for potential consolidation or replacement based on existing and improved alternatives.", observations2(d))
-                                            End If
+                                            msg2 = String.Format("The following {0} systems in the portfolio were flagged for potential consolidation or replacement based on existing and improved alternatives:  {1}", cnt2, str)
+                                        Else
+                                            msg2 = String.Format("The [system] {0} was flagged for potential consolidation or replacement based on existing and improved alternatives.", observations2(d))
+                                        End If
                                             msg2 = msg2 & Environment.NewLine & "Recommendation: Begin planning a consolidation or replacement strategy for these systems to increase effciencies across the organization."
                                     End Select
                                 End If
@@ -593,7 +593,7 @@ Public Class frmMain
                 counter = CInt(((rowNo - 14) * 100) / (rowCount - 14))
                 '*** Telling user that a system was processed. ***
                 If Not IsNumeric(array(1, 1)) Then
-                    Me.BackgroundWorker1.ReportProgress(counter, String.Format("... Processing '{0}'", array(1, 1)))
+                    Me.BackgroundWorker1.ReportProgress(counter, String.Format("... analyzing '{0}'", array(1, 1)))
                 End If
 
                 For i = 2 To 18
@@ -627,6 +627,11 @@ Public Class frmMain
             Dim oFunctions As New List(Of cFunction)
             Dim oSubFunctions As New List(Of cFunction)
             Dim tot As New cFunction
+
+            Dim vr As Excel.Range = oSheet.Range("E7", "E7")
+            Dim words() As String = vr.Value2.Split()
+            Dim FYLabel As String = words(1)
+
 
             For rowNo As Integer = 9 To rowCount
                 Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "E" & rowNo)
@@ -671,13 +676,13 @@ Public Class frmMain
 
             pct = oFunctions.Item(0).fy / tot.fy
             pct2 = oFunctions.Item(1).fy / tot.fy
-            str = "The majority of the budget allocation is aligned to the " & oFunctions.Item(0).Name & "(" & FormatPercent(pct) & ") and " & oFunctions.Item(1).Name & "(" & FormatPercent(pct2) & ") "
+            str = "The majority of the budget allocation for " & FYLabel & " is projected for " & oFunctions.Item(0).Name & "(" & FormatPercent(pct) & ") and " & oFunctions.Item(1).Name & "(" & FormatPercent(pct2) & ") "
             str &= "business functions."
             obs(0) = str
             pct = oSubFunctions.Item(0).fy / tot.fy
             pct1 = oSubFunctions.Item(1).fy / tot.fy
             pct2 = oSubFunctions.Item(2).fy / tot.fy
-            str = "The top three sub-functions are " & oSubFunctions.Item(0).Name & "(" & FormatPercent(pct) & ")," & oSubFunctions.Item(1).Name & "(" & FormatPercent(pct1) & ") and " & oSubFunctions.Item(2).Name & "(" & FormatPercent(pct2) & ") "
+            str = "The top three sub-functions for " & FYLabel & " are " & oSubFunctions.Item(0).Name & "(" & FormatPercent(pct) & ")," & oSubFunctions.Item(1).Name & "(" & FormatPercent(pct1) & ") and " & oSubFunctions.Item(2).Name & "(" & FormatPercent(pct2) & ") "
             str &= "."
             obs(1) = str
 
