@@ -185,171 +185,190 @@ Public Class frmMain
                     sheetName = oSheet.Name.Trim
 
                     ' Get observations
-                    If sheetName = "IT System Assessment Details" Then
+                    If sheetName = "Function & Sub-Function Data" Then
 
-                        '*** Proceed here only if the worksheet is the AssessmentData. ***
-                        ReadData(oSheet, observations, observations2, observations3)
+                        ReadFunctionsSheet(oSheet, observations)
+                        If Not observations(0) = String.Empty Or Not observations(1) = String.Empty Then
+                            Using w As StreamWriter = File.AppendText(apppath & "\" & GetFileName(f) & ".txt")
+                                If Not observations(0) = String.Empty Then
+                                    LogText(String.Format("[Business Functions] - {0}", observations(0)), w)
+                                End If
+                                If Not observations(1) = String.Empty Then
+                                    LogText(String.Format("[Business SubFunctions] - {0}", observations(1)), w)
+                                End If
 
-                        For d As Integer = 0 To 16
-                            Dim cnt As Integer = 0
-                            Dim cnt2 As Integer = 0
-                            Dim cnt3 As Integer = 0
-                            Dim msg As String = ""
-                            Dim msg2 As String = ""
-                            Dim msg3 As String = ""
+                            End Using
+                        End If
 
-                            If Not IsNothing(observations(d)) Then
-                                cnt = GetArrayLength(observations(d), "|")
-                            End If
-                            If Not IsNothing(observations2(d)) Then
-                                cnt2 = GetArrayLength(observations2(d), "|")
-                            End If
-                            If Not IsNothing(observations3(d)) Then
-                                cnt3 = GetArrayLength(observations3(d), "|")
-                            End If
-                            If cnt > 0 Then
-                                Dim str As String = ""
-                                Select Case d
-                                    Case id.strategicAlignment
-                                        If cnt > 9 Then
-                                            msg = String.Format("Exactly {0} systems in the portfolio provides minimal or no contribution to the CDC and/or CIO's strategic objectives.", cnt)
-                                        ElseIf cnt > 1 Then
-                                            str = ReplaceLastOccurrence(observations(d), "|", " and")
-                                            str = str.Replace("|", ", ")
-                                            msg = String.Format("The following {0} system(s) in the portfolio provides minimal or no contribution to the CDC and/or CIO's strategic objectives:  {1}", cnt, str)
-                                        Else
-                                            msg = String.Format("The [system] {0} was assessed to provide minimal contribution to the CDC and/or CIO's strategic objectives.", observations(d))
-                                        End If
-                                        msg = msg & Environment.NewLine & "Recommendation: Assess the actual business need during the next annual operational analysis and/or begin planning the retirement of these systems ."
-
-                                    Case id.efficiency
-                                        Exit Select
-
-                                    Case id.changeReq
-                                        If cnt > 9 Then
-                                            msg = String.Format("Exactly {0} systems in the portfolio have been flagged with operational and/or technical deficiencies which prevent meeting the business needs.", cnt)
-                                        ElseIf cnt > 1 Then
-                                            str = ReplaceLastOccurrence(observations(d), "|", " and")
-                                            str = str.Replace("|", ", ")
-                                            msg = String.Format("The following {0} system(s) in the portfolio have been flagged with operational and/or technical deficiencies which prevent meeting the business needs:  {1}", cnt, str)
-                                        Else
-                                            msg = String.Format("The [system] {0} was flagged with operational and/or technical deficiencies which prevent meeting the business needs.", observations(d))
-                                        End If
-                                        msg = msg & Environment.NewLine & "Recommendation:  An analisys of alternatives (AoA) would help determine a suitable solution replacement and/or needed technology refresh."
-
-                                    Case id.benefit
-                                        If cnt > 9 Then
-                                            msg = String.Format("Exactly {0} systems in the portfolio are not meeting the business benefits and/or business needs.", cnt)
-                                        ElseIf cnt > 1 Then
-                                            str = ReplaceLastOccurrence(observations(d), "|", " and")
-                                            str = str.Replace("|", ", ")
-                                            msg = String.Format("The following {0} system(s) in the portfolio are not meeting the business benefits and/or business needs:  {1}", cnt, str)
-                                        Else
-                                            msg = String.Format("The [system] {0} is not meeting the business benefits and/or business needs.", observations(d))
-                                        End If
-                                        msg = msg & Environment.NewLine & "Recommendation:  Begin planning retirement for these systems or alternatively consider performing a gap analysis during the next OA to identify suitable replacement."
-                                    Case id.sysEnhancement
-                                        If cnt > 9 Then
-                                            msg = String.Format("Exactly {0} systems in the portfolio were deemed rigid and un-feasible to undergo enhancements when new business requirements emerge.", cnt)
-                                        ElseIf cnt > 1 Then
-                                            str = ReplaceLastOccurrence(observations(d), "|", " and")
-                                            str = str.Replace("|", ", ")
-                                            msg = String.Format("The following {0} system(s) in the portfolio were deemed rigid and un-feasible to enhance/modify when new business requirements emerge:  {1}", cnt, str)
-                                        Else
-                                            msg = String.Format("The [system] {0} was deemed rigid and un-feasible to enhance/modify when new business requirements emerge.", observations(d))
-                                        End If
-                                        msg = msg & Environment.NewLine & "Recommendation:  Systems that cannot adapt to emerging business requirements represent a risk for the organization and should be considered for a technology refresh or solution replacement."
-
-
-                                    Case id.futureState
-                                        If cnt > 9 Then
-                                            msg = String.Format("Exactly {0} systems in the portfolio have been flagged as candidate for retirement during the latest FY IT assessment.", cnt)
-                                        ElseIf cnt > 1 Then
-                                            str = ReplaceLastOccurrence(observations(d), "|", " and")
-                                            str = str.Replace("|", ", ")
-                                            msg = String.Format("The following {0} system(s) in the portfolio were flagged as candidate for retirement during the latest FY IT assessment:  {1}", cnt, str)
-                                        Else
-                                            msg = String.Format("The [system] {0} was flagged for retirement during the latest FY IT assessment.", observations(d))
-                                        End If
-                                        msg = msg & Environment.NewLine & "Recommendation:  Revisit the latest operational analysis for these systems to confirm obsolence and begin a plan for their retirement."
-
-                                    Case id.techRelevance
-                                        If cnt > 9 Then
-                                            msg = String.Format("Exactly {0} systems in the portfolio are running on outdated or obsolete technologies.", cnt)
-                                        ElseIf cnt > 1 Then
-                                            str = ReplaceLastOccurrence(observations(d), "|", " and")
-                                            str = str.Replace("|", ", ")
-                                            msg = String.Format("The following {0} systems in the portfolio are at risk for operational interruptions given their dependencies on outdated and obsolete technologies:  {1}", cnt, str)
-                                        Else
-                                            msg = String.Format("The [system] {0} is at risk for operational interruptions given its reliance on outdated and obsolete technologies.", observations(d))
-                                        End If
-                                        msg = msg & Environment.NewLine & "Recommendation:  Begin planning a technology refresh or solution replacement to ensure proper continuity of services."
-
-                                End Select
-                            End If
-                            If cnt2 > 0 Then
-                                Dim str As String = ""
-                                Select Case d
-                                    Case id.sharedServices
-                                        If cnt2 > 9 Then
-                                            msg2 = String.Format("Exactly {0} systems in the portfolio have functionality that would potentially be valuable to other organizations but are not currently shared.", cnt2)
-                                        ElseIf cnt2 > 1 Then
-                                            str = ReplaceLastOccurrence(observations2(d), "|", " and")
-                                            str = str.Replace("|", ", ")
-                                            msg2 = String.Format("The following {0} systems in the portfolio have capabilities that would be valuable to other organizations but are not currently shared.:  {1}", cnt2, str)
-                                        Else
-                                            msg2 = String.Format("The [system] {0} has functionality potentially valuable to other organizations but these are not currently shared.", observations2(d))
-                                        End If
-                                        msg2 = msg2 & Environment.NewLine & "Recommendation: Shared Services can save money to the taxpayers while helping to standardize process and increase effciencies across the organization. Contact EITPO's Enterprise Architects to learn how to position some of these systems as shared services."
-                                    Case id.futureState
-                                        If cnt2 > 9 Then
-                                            msg2 = String.Format("Exactly {0} systems in the portfolio were flaged for potential consolidation or replacement based on existing and improved alternatives.", cnt2)
-                                        ElseIf cnt2 > 1 Then
-                                            str = ReplaceLastOccurrence(observations2(d), "|", " and")
-                                            str = str.Replace("|", ", ")
-                                            msg2 = String.Format("The following {0} systems in the portfolio were flaged for potential consolidation or replacement based on existing and improved alternatives:  {1}", cnt2, str)
-                                        Else
-                                            msg2 = String.Format("The [system] {0} was flaged for potential consolidation or replacement based on existing and improved alternatives.", observations2(d))
-                                        End If
-                                        msg2 = msg2 & Environment.NewLine & "Recommendation: Begin planning a consolidation or replacement strategy for these systems to increase effciencies across the organization."
-                                End Select
-                            End If
-                            If cnt3 > 0 Then
-                                Dim str As String = ""
-                                Select Case d
-                                    Case id.sharedServices
-                                        If cnt3 > 9 Then
-                                            msg3 = String.Format("Exactly {0} systems in the portfolio currently offers capabilities as services to other organizations.", cnt3)
-                                        ElseIf cnt3 > 1 Then
-                                            str = ReplaceLastOccurrence(observations3(d), "|", " and")
-                                            str = str.Replace("|", ", ")
-                                            msg3 = String.Format("The following {0} systems in the portfolio currently offers capabilities as services to other organizations:  {1}", cnt3, str)
-                                        Else
-                                            msg3 = String.Format("The [system] {0} currently offers capabilities as services to other organizations.", observations3(d))
-                                        End If
-                                        msg3 = msg3 & Environment.NewLine & "Comment: Shared Services are a big part of the HHS and CDC IT Strategy. Kudos to the organization and its leadership."
-                                End Select
-                            End If
-
-                            If Not msg = String.Empty Or Not msg2 = String.Empty Then
-                                Using w As StreamWriter = File.AppendText(apppath & "\" & GetFileName(f) & ".txt")
-                                    If Not msg = String.Empty Then
-                                        LogText(String.Format("[{0}] - {1}", [Enum].GetName(GetType(id), d), msg), w)
-                                    End If
-                                    If Not msg2 = String.Empty Then
-                                        LogText(String.Format("[{0}] - {1}", [Enum].GetName(GetType(id), d) & ".2", msg2), w)
-                                    End If
-                                    If Not msg3 = String.Empty Then
-                                        LogText(String.Format("[{0}] - {1}", [Enum].GetName(GetType(id), d) & ".3", msg3), w)
-                                    End If
-
-                                End Using
-                            End If
-                        Next
                     End If
+
                     Array.Clear(observations, 0, observations.Length)
                     Array.Clear(observations2, 0, observations.Length)
                     Array.Clear(observations3, 0, observations.Length)
+
+                    If sheetName = "IT System Assessment Details" Then
+
+                            '*** Proceed here only if the worksheet is the AssessmentData. ***
+                            ReadData(oSheet, observations, observations2, observations3)
+
+                            For d As Integer = 0 To 16
+                                Dim cnt As Integer = 0
+                                Dim cnt2 As Integer = 0
+                                Dim cnt3 As Integer = 0
+                                Dim msg As String = ""
+                                Dim msg2 As String = ""
+                                Dim msg3 As String = ""
+
+                                If Not IsNothing(observations(d)) Then
+                                    cnt = GetArrayLength(observations(d), "|")
+                                End If
+                                If Not IsNothing(observations2(d)) Then
+                                    cnt2 = GetArrayLength(observations2(d), "|")
+                                End If
+                                If Not IsNothing(observations3(d)) Then
+                                    cnt3 = GetArrayLength(observations3(d), "|")
+                                End If
+                                If cnt > 0 Then
+                                    Dim str As String = ""
+                                    Select Case d
+                                        Case id.strategicAlignment
+                                            If cnt > 9 Then
+                                                msg = String.Format("Exactly {0} systems in the portfolio provides minimal or no contribution to the CDC and/or CIO's strategic objectives.", cnt)
+                                            ElseIf cnt > 1 Then
+                                                str = ReplaceLastOccurrence(observations(d), "|", " and")
+                                                str = str.Replace("|", ", ")
+                                                msg = String.Format("The following {0} system(s) in the portfolio provides minimal or no contribution to the CDC and/or CIO's strategic objectives:  {1}", cnt, str)
+                                            Else
+                                                msg = String.Format("The [system] {0} was assessed to provide minimal contribution to the CDC and/or CIO's strategic objectives.", observations(d))
+                                            End If
+                                            msg = msg & Environment.NewLine & "Recommendation: Assess the actual business need during the next annual operational analysis and/or begin planning the retirement of these systems ."
+
+                                        Case id.efficiency
+                                            Exit Select
+
+                                        Case id.changeReq
+                                            If cnt > 9 Then
+                                                msg = String.Format("Exactly {0} systems in the portfolio have been flagged with operational and/or technical deficiencies which prevent meeting the business needs.", cnt)
+                                            ElseIf cnt > 1 Then
+                                                str = ReplaceLastOccurrence(observations(d), "|", " and")
+                                                str = str.Replace("|", ", ")
+                                                msg = String.Format("The following {0} system(s) in the portfolio have been flagged with operational and/or technical deficiencies which prevent meeting the business needs:  {1}", cnt, str)
+                                            Else
+                                                msg = String.Format("The [system] {0} was flagged with operational and/or technical deficiencies which prevent meeting the business needs.", observations(d))
+                                            End If
+                                            msg = msg & Environment.NewLine & "Recommendation:  An analisys of alternatives (AoA) would help determine a suitable solution replacement and/or needed technology refresh."
+
+                                        Case id.benefit
+                                            If cnt > 9 Then
+                                                msg = String.Format("Exactly {0} systems in the portfolio are not meeting the business benefits and/or business needs.", cnt)
+                                            ElseIf cnt > 1 Then
+                                                str = ReplaceLastOccurrence(observations(d), "|", " and")
+                                                str = str.Replace("|", ", ")
+                                                msg = String.Format("The following {0} system(s) in the portfolio are not meeting the business benefits and/or business needs:  {1}", cnt, str)
+                                            Else
+                                                msg = String.Format("The [system] {0} is not meeting the business benefits and/or business needs.", observations(d))
+                                            End If
+                                            msg = msg & Environment.NewLine & "Recommendation:  Begin planning retirement for these systems or alternatively consider performing a gap analysis during the next OA to identify suitable replacement."
+                                        Case id.sysEnhancement
+                                            If cnt > 9 Then
+                                                msg = String.Format("Exactly {0} systems in the portfolio were deemed rigid and un-feasible to undergo enhancements when new business requirements emerge.", cnt)
+                                            ElseIf cnt > 1 Then
+                                                str = ReplaceLastOccurrence(observations(d), "|", " and")
+                                                str = str.Replace("|", ", ")
+                                                msg = String.Format("The following {0} system(s) in the portfolio were deemed rigid and un-feasible to enhance/modify when new business requirements emerge:  {1}", cnt, str)
+                                            Else
+                                                msg = String.Format("The [system] {0} was deemed rigid and un-feasible to enhance/modify when new business requirements emerge.", observations(d))
+                                            End If
+                                            msg = msg & Environment.NewLine & "Recommendation:  Systems that cannot adapt to emerging business requirements represent a risk for the organization and should be considered for a technology refresh or solution replacement."
+
+
+                                        Case id.futureState
+                                            If cnt > 9 Then
+                                                msg = String.Format("Exactly {0} systems in the portfolio have been flagged as candidate for retirement during the latest FY IT assessment.", cnt)
+                                            ElseIf cnt > 1 Then
+                                                str = ReplaceLastOccurrence(observations(d), "|", " and")
+                                                str = str.Replace("|", ", ")
+                                                msg = String.Format("The following {0} system(s) in the portfolio were flagged as candidate for retirement during the latest FY IT assessment:  {1}", cnt, str)
+                                            Else
+                                                msg = String.Format("The [system] {0} was flagged for retirement during the latest FY IT assessment.", observations(d))
+                                            End If
+                                            msg = msg & Environment.NewLine & "Recommendation:  Revisit the latest operational analysis for these systems to confirm obsolence and begin a plan for their retirement."
+
+                                        Case id.techRelevance
+                                            If cnt > 9 Then
+                                                msg = String.Format("Exactly {0} systems in the portfolio are running on outdated or obsolete technologies.", cnt)
+                                            ElseIf cnt > 1 Then
+                                                str = ReplaceLastOccurrence(observations(d), "|", " and")
+                                                str = str.Replace("|", ", ")
+                                                msg = String.Format("The following {0} systems in the portfolio are at risk for operational interruptions given their dependencies on outdated and obsolete technologies:  {1}", cnt, str)
+                                            Else
+                                                msg = String.Format("The [system] {0} is at risk for operational interruptions given its reliance on outdated and obsolete technologies.", observations(d))
+                                            End If
+                                            msg = msg & Environment.NewLine & "Recommendation:  Begin planning a technology refresh or solution replacement to ensure proper continuity of services."
+
+                                    End Select
+                                End If
+                                If cnt2 > 0 Then
+                                    Dim str As String = ""
+                                    Select Case d
+                                        Case id.sharedServices
+                                            If cnt2 > 9 Then
+                                                msg2 = String.Format("Exactly {0} systems in the portfolio have functionality that would potentially be valuable to other organizations but are not currently shared.", cnt2)
+                                            ElseIf cnt2 > 1 Then
+                                                str = ReplaceLastOccurrence(observations2(d), "|", " and")
+                                                str = str.Replace("|", ", ")
+                                                msg2 = String.Format("The following {0} systems in the portfolio have capabilities that would be valuable to other organizations but are not currently shared.:  {1}", cnt2, str)
+                                            Else
+                                                msg2 = String.Format("The [system] {0} has functionality potentially valuable to other organizations but these are not currently shared.", observations2(d))
+                                            End If
+                                            msg2 = msg2 & Environment.NewLine & "Recommendation: Shared Services can save money to the taxpayers while helping to standardize process and increase effciencies across the organization. Contact EITPO's Enterprise Architects to learn how to position some of these systems as shared services."
+                                        Case id.futureState
+                                            If cnt2 > 9 Then
+                                                msg2 = String.Format("Exactly {0} systems in the portfolio were flaged for potential consolidation or replacement based on existing and improved alternatives.", cnt2)
+                                            ElseIf cnt2 > 1 Then
+                                                str = ReplaceLastOccurrence(observations2(d), "|", " and")
+                                                str = str.Replace("|", ", ")
+                                                msg2 = String.Format("The following {0} systems in the portfolio were flaged for potential consolidation or replacement based on existing and improved alternatives:  {1}", cnt2, str)
+                                            Else
+                                                msg2 = String.Format("The [system] {0} was flaged for potential consolidation or replacement based on existing and improved alternatives.", observations2(d))
+                                            End If
+                                            msg2 = msg2 & Environment.NewLine & "Recommendation: Begin planning a consolidation or replacement strategy for these systems to increase effciencies across the organization."
+                                    End Select
+                                End If
+                                If cnt3 > 0 Then
+                                    Dim str As String = ""
+                                    Select Case d
+                                        Case id.sharedServices
+                                            If cnt3 > 9 Then
+                                                msg3 = String.Format("Exactly {0} systems in the portfolio currently offers capabilities as services to other organizations.", cnt3)
+                                            ElseIf cnt3 > 1 Then
+                                                str = ReplaceLastOccurrence(observations3(d), "|", " and")
+                                                str = str.Replace("|", ", ")
+                                                msg3 = String.Format("The following {0} systems in the portfolio currently offers capabilities as services to other organizations:  {1}", cnt3, str)
+                                            Else
+                                                msg3 = String.Format("The [system] {0} currently offers capabilities as services to other organizations.", observations3(d))
+                                            End If
+                                            msg3 = msg3 & Environment.NewLine & "Comment: Shared Services are a big part of the HHS and CDC IT Strategy. Kudos to the organization and its leadership."
+                                    End Select
+                                End If
+
+                                If Not msg = String.Empty Or Not msg2 = String.Empty Then
+                                    Using w As StreamWriter = File.AppendText(apppath & "\" & GetFileName(f) & ".txt")
+                                        If Not msg = String.Empty Then
+                                            LogText(String.Format("[{0}] - {1}", [Enum].GetName(GetType(id), d), msg), w)
+                                        End If
+                                        If Not msg2 = String.Empty Then
+                                            LogText(String.Format("[{0}] - {1}", [Enum].GetName(GetType(id), d) & ".2", msg2), w)
+                                        End If
+                                        If Not msg3 = String.Empty Then
+                                            LogText(String.Format("[{0}] - {1}", [Enum].GetName(GetType(id), d) & ".3", msg3), w)
+                                        End If
+
+                                    End Using
+                                End If
+                            Next
+                        End If
+
                 Next '*** Get next worksheet. ***
 
                 oWorkbook.Close()
@@ -598,6 +617,81 @@ Public Class frmMain
             trace(ex.Message)
         End Try
     End Sub
+
+    Private Sub ReadFunctionsSheet(ByRef oSheet As Excel.Worksheet, ByRef obs() As String)
+        Try
+            Dim rowCount As Integer = oSheet.UsedRange.Rows.Count
+            Dim columnCount As Integer = oSheet.UsedRange.Columns.Count
+            Dim rows As Excel.Range = oSheet.UsedRange.Rows
+            Dim a As Integer
+            Dim oFunctions As New List(Of cFunction)
+            Dim oSubFunctions As New List(Of cFunction)
+            Dim tot As New cFunction
+
+            For rowNo As Integer = 9 To rowCount
+                Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "E" & rowNo)
+                Dim array As Object = value_range.Value2
+                Dim func As New cFunction
+
+                If array(1, 1) = "Grand Total" Then ' This a grand total
+                    tot.Name = array(1, 1)
+                    tot.num = CInt(array(1, 2))
+                    tot.fyminus2 = CDbl(array(1, 3))
+                    tot.fyminus1 = CDbl(array(1, 4))
+                    tot.fy = CDbl(array(1, 5))
+                    Exit For
+                End If
+
+                If Not array(1, 1).ToString().In("--", "Grand Total") Then ' Function or Sub-Function Name
+                    If a = 0 Then
+                        a = CInt(array(1, 2))
+                        func.Name = array(1, 1)
+                        func.num = CInt(array(1, 2))
+                        func.fyminus2 = CDbl(array(1, 3))
+                        func.fyminus1 = CDbl(array(1, 4))
+                        func.fy = CDbl(array(1, 5))
+                        oFunctions.Add(func)
+                    Else
+                        a = a - CInt(array(1, 2))
+                        func.Name = array(1, 1)
+                        func.num = CInt(array(1, 2))
+                        func.fyminus2 = CDbl(array(1, 3))
+                        func.fyminus1 = CDbl(array(1, 4))
+                        func.fy = CDbl(array(1, 5))
+                        oSubFunctions.Add(func)
+                    End If
+                End If
+            Next
+
+            Dim pct, pct1, pct2 As Double
+            Dim str As String
+            'Sort by function name
+            oFunctions = oFunctions.OrderByDescending(Function(x) x.fy).ToList
+            oSubFunctions = oSubFunctions.OrderByDescending(Function(x) x.fy).ToList
+
+            pct = oFunctions.Item(0).fy / tot.fy
+            pct2 = oFunctions.Item(1).fy / tot.fy
+            str = "The majority of the budget allocation is aligned to the " & oFunctions.Item(0).Name & "(" & FormatPercent(pct) & ") and " & oFunctions.Item(1).Name & "(" & FormatPercent(pct2) & ") "
+            str &= "business functions."
+            obs(0) = str
+            pct = oSubFunctions.Item(0).fy / tot.fy
+            pct1 = oSubFunctions.Item(1).fy / tot.fy
+            pct2 = oSubFunctions.Item(2).fy / tot.fy
+            str = "The top three sub-functions are " & oSubFunctions.Item(0).Name & "(" & FormatPercent(pct) & ")," & oSubFunctions.Item(1).Name & "(" & FormatPercent(pct1) & ") and " & oSubFunctions.Item(2).Name & "(" & FormatPercent(pct2) & ") "
+            str &= "."
+            obs(1) = str
+
+            'Display results in listbox1
+            'For Each place As City In cities
+            '    ListBox1.Items.Add(place.Name)
+            'Next
+
+        Catch ex As Exception
+            trace(ex.Message)
+        End Try
+
+    End Sub
+
     Private Sub trace(ByVal str As String)
         Me.txtOutput.AppendText(str & Environment.NewLine)
     End Sub

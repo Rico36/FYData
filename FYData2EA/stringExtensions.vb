@@ -14,4 +14,9 @@
 
     End Function
 
+    <System.Runtime.CompilerServices.Extension()>
+    Function [In](Of TItem, TColl)(this As TItem, ParamArray items() As TColl)
+        Return Array.IndexOf(items, this) > -1
+    End Function
+
 End Module
