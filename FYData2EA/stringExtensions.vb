@@ -19,4 +19,5 @@
         Return Array.IndexOf(items, this) > -1
     End Function
 
+
 End Module

@@ -23,10 +23,10 @@ Partial Class frmMain
     <System.Diagnostics.DebuggerStepThrough()>
     Private Sub InitializeComponent()
         Me.Panel1 = New System.Windows.Forms.Panel()
-        Me.ProgressBarStyle = New System.Windows.Forms.StatusStrip()
-        Me.pbarProgress = New System.Windows.Forms.ToolStripProgressBar()
-        Me.lblStatus = New System.Windows.Forms.ToolStripStatusLabel()
         Me.btnImport = New System.Windows.Forms.Button()
+        Me.ProgressBarStyle = New System.Windows.Forms.StatusStrip()
+        Me.lblStatus = New System.Windows.Forms.ToolStripStatusLabel()
+        Me.pbarProgress = New System.Windows.Forms.ToolStripProgressBar()
         Me.BackgroundWorker1 = New System.ComponentModel.BackgroundWorker()
         Me.txtOutput = New System.Windows.Forms.TextBox()
         Me.Panel1.SuspendLayout()
@@ -42,6 +42,16 @@ Partial Class frmMain
         Me.Panel1.Name = "Panel1"
         Me.Panel1.Size = New System.Drawing.Size(797, 89)
         Me.Panel1.TabIndex = 0
+        '
+        'btnImport
+        '
+        Me.btnImport.Location = New System.Drawing.Point(671, 4)
+        Me.btnImport.Margin = New System.Windows.Forms.Padding(4)
+        Me.btnImport.Name = "btnImport"
+        Me.btnImport.Size = New System.Drawing.Size(111, 40)
+        Me.btnImport.TabIndex = 0
+        Me.btnImport.Text = "Run"
+        Me.btnImport.UseVisualStyleBackColor = True
         '
         'ProgressBarStyle
         '
@@ -60,6 +70,11 @@ Partial Class frmMain
         Me.ProgressBarStyle.TabIndex = 1
         Me.ProgressBarStyle.Text = "StatusStrip1"
         '
+        'lblStatus
+        '
+        Me.lblStatus.Name = "lblStatus"
+        Me.lblStatus.Size = New System.Drawing.Size(0, 33)
+        '
         'pbarProgress
         '
         Me.pbarProgress.AutoSize = False
@@ -67,21 +82,6 @@ Partial Class frmMain
         Me.pbarProgress.Name = "pbarProgress"
         Me.pbarProgress.Size = New System.Drawing.Size(300, 32)
         Me.pbarProgress.Visible = False
-        '
-        'lblStatus
-        '
-        Me.lblStatus.Name = "lblStatus"
-        Me.lblStatus.Size = New System.Drawing.Size(0, 33)
-        '
-        'btnImport
-        '
-        Me.btnImport.Location = New System.Drawing.Point(671, 4)
-        Me.btnImport.Margin = New System.Windows.Forms.Padding(4)
-        Me.btnImport.Name = "btnImport"
-        Me.btnImport.Size = New System.Drawing.Size(111, 40)
-        Me.btnImport.TabIndex = 0
-        Me.btnImport.Text = "Run"
-        Me.btnImport.UseVisualStyleBackColor = True
         '
         'BackgroundWorker1
         '
