@@ -4,10 +4,12 @@ Imports Microsoft.Office.Interop
 Imports System.Runtime.InteropServices
 Imports System.Windows.Forms
 Imports System.Text.RegularExpressions
+Imports System.Xml
 
 Public Class frmMain
 
     Private apppath As String = ""
+    Private sVer As String = ""
     Dim rs As New Resizer
 
     Structure Matrix
@@ -51,14 +53,22 @@ Public Class frmMain
         techRelevance
     End Enum
     Private Sub frmMain_Load(ByVal sender As Object, ByVal e As System.EventArgs) Handles Me.Load
+
         rs.FindAllControls(Me)
         '*** open a File Dialog Box to allow the user to select a folder
+        Try
+            Dim m_xmld = New XmlDocument()
+            m_xmld.Load(Application.ExecutablePath & ".manifest")
+            sVer = "v" & m_xmld.ChildNodes.Item(1).ChildNodes.Item(0).Attributes.GetNamedItem("version").Value
+        Catch ex As Exception
+        Finally
+        End Try
         If apppath = "" Then
             Dim dialog As New FolderBrowserDialog()
             dialog.RootFolder = Environment.SpecialFolder.Desktop
             dialog.SelectedPath = "C:\"
             dialog.ShowNewFolderButton = False
-            dialog.Description = "Select the directory with the FY data (Excel files)"
+            dialog.Description = "Select the directory for FY data (.xls files) - " & sVer
             If dialog.ShowDialog() = Windows.Forms.DialogResult.OK Then
                 apppath = dialog.SelectedPath
             Else
@@ -66,7 +76,7 @@ Public Class frmMain
             End If
 
         End If
-
+        Me.Text = Me.Text & " " & sVer
     End Sub
 
     Private Sub frmMain_Resize(ByVal sender As Object,
@@ -213,8 +223,8 @@ Public Class frmMain
                     End If
 
                     Array.Clear(observations, 0, observations.Length)
-                        Array.Clear(observations2, 0, observations.Length)
-                        Array.Clear(observations3, 0, observations.Length)
+                    Array.Clear(observations2, 0, observations.Length)
+                    Array.Clear(observations3, 0, observations.Length)
 
                     If sheetName = "IT System Assessment Details" Then
 
@@ -266,7 +276,7 @@ Public Class frmMain
                                         Else
                                             msg = String.Format("The [system] {0} was reported with operational and/or technical deficiencies which prevent meeting the business needs.", observations(d))
                                         End If
-                                        msg = msg & " Recommendation:  An analisys of alternatives (AoA) would help determine a suitable solution replacement and/or needed technology refresh."
+                                        msg = msg & " Recommendation:  An analysis of alternatives (AoA) would help determine a suitable solution replacement and/or needed technology refresh."
 
                                     Case id.benefit
                                         If cnt > 9 Then
@@ -731,11 +741,11 @@ Public Class frmMain
             Next
             Dim msg As String
             If n > 5 Then
-                msg = String.Format("There are {0} systems in the portfolio supporting Public Health Surveillance activities for {1} with an total FY2018 budget of {2}", n, Org, FormatNumber(total))
+                msg = String.Format("There are {0} systems in the portfolio supporting Public Health Surveillance activities for {1} with a total FY2018 budget of {2}", n, Org, FormatNumber(total))
             ElseIf n > 1 Then
                 names = ReplaceLastOccurrence(names, "|", " and")
                 names = names.Replace("|", ", ")
-                msg = String.Format("The following {0} systems in the portfolio supports Public Health Surveillance activities for {1} with an FY2018 budget of {2}: {3}", n, Org, FormatNumber(total), names)
+                msg = String.Format("The following {0} systems in the portfolio supports Public Health Surveillance activities for {1} with a total FY2018 budget of {2}: {3}", n, Org, FormatNumber(total), names)
             Else
                 msg = String.Format("The [system] {0} supports Public Health Surveillance activities for {1} with an FY2018 budget of {2}.", names, Org, FormatNumber(total))
             End If
@@ -820,4 +830,5 @@ Public Class frmMain
         Return num.ToString("#,0")
 
     End Function
+
 End Class
