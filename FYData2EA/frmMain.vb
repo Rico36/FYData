@@ -643,7 +643,8 @@ Public Class frmMain
             Dim oSubFunctions As New List(Of cFunction)
             Dim tot As New cFunction
 
-            Dim vr As Excel.Range = oSheet.Range("E7", "E7")
+            '  Dim vr As Excel.Range = oSheet.Range("E7", "E7")
+            Dim vr As Excel.Range = oSheet.Range("C7", "C7")
             Dim words() As String = vr.Value2.Split()
             Dim FYLabel As String = words(1)
 
@@ -658,7 +659,8 @@ Public Class frmMain
                     tot.num = CInt(array(1, 2))
                     tot.fyminus2 = CDbl(array(1, 3))
                     tot.fyminus1 = CDbl(array(1, 4))
-                    tot.fy = CDbl(array(1, 5))
+                    ' tot.fy = CDbl(array(1, 5))
+                    tot.fy = tot.fyminus2
                     Exit For
                 End If
 
@@ -667,17 +669,19 @@ Public Class frmMain
                         a = CInt(array(1, 2))
                         func.Name = array(1, 1)
                         func.num = CInt(array(1, 2))
-                        func.fyminus2 = CDbl(array(1, 3))
-                        func.fyminus1 = CDbl(array(1, 4))
-                        func.fy = CDbl(array(1, 5))
+                        func.fyminus2 = CDbl(array(1, 3))  ' FY2016 column
+                        func.fyminus1 = CDbl(array(1, 4))   ' FY2017 column
+                        ' func.fy = CDbl(array(1, 5))  ' FY2018 column
+                        func.fy = func.fyminus2  ' FY2016 column
                         oFunctions.Add(func)
                     Else
                         a = a - CInt(array(1, 2))
                         func.Name = array(1, 1)
                         func.num = CInt(array(1, 2))
-                        func.fyminus2 = CDbl(array(1, 3))
-                        func.fyminus1 = CDbl(array(1, 4))
-                        func.fy = CDbl(array(1, 5))
+                        func.fyminus2 = CDbl(array(1, 3))  ' FY2016 column
+                        func.fyminus1 = CDbl(array(1, 4))   ' FY2017 column
+                        '  func.fy = CDbl(array(1, 5))  ' FY2018 column
+                        func.fy = func.fyminus2  ' FY2016 column
                         oSubFunctions.Add(func)
                     End If
                 End If
