@@ -649,7 +649,6 @@ Public Class frmMain
             Dim rowCount As Integer = oSheet.UsedRange.Rows.Count
             Dim columnCount As Integer = oSheet.UsedRange.Columns.Count
             Dim rows As Excel.Range = oSheet.UsedRange.Rows
-            Dim a As Integer
             Dim oFunctions As New List(Of cFunction)
             Dim oSubFunctions As New List(Of cFunction)
             Dim tot As New cFunction
@@ -662,7 +661,7 @@ Public Class frmMain
             Dim Total As Double = 0
 
 
-            For rowNo As Integer = 7 To rowCount
+            For rowNo As Integer = 7 To rowCount + 10
                 Dim value_range As Excel.Range = oSheet.Range("B" & rowNo, "C" & rowNo)
                 Dim array As Object = value_range.Value2
                 Dim func As New cFunction
@@ -703,9 +702,9 @@ Public Class frmMain
     End Sub
     Private Sub ReadFunctionsSheet(ByRef oSheet As Excel.Worksheet, ByRef obs() As String)
         Try
+            Dim rows As Excel.Range = oSheet.UsedRange.Rows
             Dim rowCount As Integer = oSheet.UsedRange.Rows.Count
             Dim columnCount As Integer = oSheet.UsedRange.Columns.Count
-            Dim rows As Excel.Range = oSheet.UsedRange.Rows
             Dim oFunctions As New List(Of cFunction)
             ' **************************************
             ' EA Business Functions (tab)
@@ -716,10 +715,14 @@ Public Class frmMain
             Dim Total As Double = 0
 
 
-            For rowNo As Integer = 7 To rowCount
+            For rowNo As Integer = 7 To rowCount + 10
                 Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "C" & rowNo)
                 Dim array As Object = value_range.Value2
                 Dim func As New cFunction
+
+                If array(1, 1) = "Grand Total" Then ' This a grand total
+                    Exit For
+                End If
 
                 If Not array(1, 1) = Nothing Then ' Function or Sub-Function Name
                     func.Name = array(1, 1)
@@ -767,7 +770,7 @@ Public Class frmMain
             Dim Org As String = vr.Value2.ToString()
 
 
-            For rowNo As Integer = 9 To rowCount
+            For rowNo As Integer = 9 To rowCount + 10
                 Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "G" & rowNo)
                 Dim array As Object = value_range.Value2
 
