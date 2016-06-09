@@ -10,6 +10,7 @@ Public Class frmMain
 
     Private apppath As String = ""
     Private sVer As String = ""
+    Private nErr As Integer = 0
     Dim rs As New Resizer
 
     Structure Matrix
@@ -194,22 +195,27 @@ Public Class frmMain
                     oSheet = CType(oSheets(i), Excel.Worksheet)
                     sheetName = oSheet.Name.Trim
 
-                    ' Get observations
-                    If sheetName = "Function & Sub-Function Data" Then
+                    Array.Clear(observations, 0, observations.Length)
+                    Array.Clear(observations2, 0, observations.Length)
+                    Array.Clear(observations3, 0, observations.Length)
 
-                        ReadFunctionsSheet(oSheet, observations)
-                        If Not observations(0) = String.Empty Or Not observations(1) = String.Empty Then
+                    If sheetName = "EA Business Sub-Functions" Then
+                        ReadSubFunctionsSheet(oSheet, observations)
+                        If Not observations(0) = String.Empty Then
                             Using w As StreamWriter = File.AppendText(apppath & "\" & GetFileName(f) & ".txt")
-                                If Not observations(0) = String.Empty Then
-                                    LogText(String.Format("[Business Functions] - Alignment towards Business Functions: {0}", observations(0)), w)
-                                End If
-                                If Not observations(1) = String.Empty Then
-                                    LogText(String.Format("[Business SubFunctions] - Budget distribution towards sub-functions: {0}", observations(1)), w)
-                                End If
-
+                                LogText(String.Format("[Business SubFunctions] - Budget distribution towards sub-functions: {0}", observations(0)), w)
                             End Using
                         End If
                     End If
+                    If sheetName = "EA Business Functions" Then
+                        ReadFunctionsSheet(oSheet, observations)
+                        If Not observations(0) = String.Empty Then
+                            Using w As StreamWriter = File.AppendText(apppath & "\" & GetFileName(f) & ".txt")
+                                LogText(String.Format("[Business Functions] - Alignment towards Business Functions: {0}", observations(0)), w)
+                            End Using
+                        End If
+                    End If
+
                     If sheetName = "EA-Surveillance Systems" Then
                         ReadSurveillanceSheet(oSheet, observations2)
                         If Not observations2(0) = String.Empty Or Not observations2(1) = String.Empty Then
@@ -221,10 +227,6 @@ Public Class frmMain
                         End If
 
                     End If
-
-                    Array.Clear(observations, 0, observations.Length)
-                    Array.Clear(observations2, 0, observations.Length)
-                    Array.Clear(observations3, 0, observations.Length)
 
                     If sheetName = "IT System Assessment Details" Then
 
@@ -394,6 +396,11 @@ Public Class frmMain
                 bridgeAdded += 1
             Next '*** Get next file. ***
 
+            If nErr > 0 Then
+                Me.BackgroundWorker1.ReportProgress(100, "Completed with ERROR(s). See \errlog.txt")
+            Else
+                Me.BackgroundWorker1.ReportProgress(100, "Completed.")
+            End If
             Me.BackgroundWorker1.ReportProgress(100, "Completed.")
 
         Catch ex As Exception
@@ -629,11 +636,15 @@ Public Class frmMain
                 Next
             Next
         Catch ex As Exception
-            trace(ex.Message)
+            nErr = nErr + 1
+            Me.BackgroundWorker1.ReportProgress(100, "ERROR encountered processing EXCEL sheet '" & oSheet.Name & ". Processing aborted. See \errlog.txt")
+            Using w As StreamWriter = File.AppendText(apppath & "\errlog.txt")
+                Log(String.Format("EXCEPTION: Sheet={0} - {1}", oSheet.Name, ex.Message), w)
+            End Using
         End Try
     End Sub
 
-    Private Sub ReadFunctionsSheet(ByRef oSheet As Excel.Worksheet, ByRef obs() As String)
+    Private Sub ReadSubFunctionsSheet(ByRef oSheet As Excel.Worksheet, ByRef obs() As String)
         Try
             Dim rowCount As Integer = oSheet.UsedRange.Rows.Count
             Dim columnCount As Integer = oSheet.UsedRange.Columns.Count
@@ -642,76 +653,99 @@ Public Class frmMain
             Dim oFunctions As New List(Of cFunction)
             Dim oSubFunctions As New List(Of cFunction)
             Dim tot As New cFunction
-
-            '  Dim vr As Excel.Range = oSheet.Range("E7", "E7")
-            Dim vr As Excel.Range = oSheet.Range("C7", "C7")
+            ' **************************************
+            ' EA Business Sub-Functions (tab)
+            '***************************************
+            Dim vr As Excel.Range = oSheet.Range("C6", "C6")
             Dim words() As String = vr.Value2.Split()
-            Dim FYLabel As String = words(1)
+            Dim FYLabel As String = words(2)
+            Dim Total As Double = 0
 
 
-            For rowNo As Integer = 9 To rowCount
-                Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "E" & rowNo)
+            For rowNo As Integer = 7 To rowCount
+                Dim value_range As Excel.Range = oSheet.Range("B" & rowNo, "C" & rowNo)
                 Dim array As Object = value_range.Value2
                 Dim func As New cFunction
 
-                If array(1, 1) = "Grand Total" Then ' This a grand total
-                    tot.Name = array(1, 1)
-                    tot.num = CInt(array(1, 2))
-                    tot.fyminus2 = CDbl(array(1, 3))
-                    tot.fyminus1 = CDbl(array(1, 4))
-                    ' tot.fy = CDbl(array(1, 5))
-                    tot.fy = tot.fyminus2
-                    Exit For
-                End If
-
-                If Not array(1, 1).ToString().In("--", "Grand Total") Then ' Function or Sub-Function Name
-                    If a = 0 Then
-                        a = CInt(array(1, 2))
-                        func.Name = array(1, 1)
-                        func.num = CInt(array(1, 2))
-                        func.fyminus2 = CDbl(array(1, 3))  ' FY2016 column
-                        func.fyminus1 = CDbl(array(1, 4))   ' FY2017 column
-                        ' func.fy = CDbl(array(1, 5))  ' FY2018 column
-                        func.fy = func.fyminus2  ' FY2016 column
-                        oFunctions.Add(func)
-                    Else
-                        a = a - CInt(array(1, 2))
-                        func.Name = array(1, 1)
-                        func.num = CInt(array(1, 2))
-                        func.fyminus2 = CDbl(array(1, 3))  ' FY2016 column
-                        func.fyminus1 = CDbl(array(1, 4))   ' FY2017 column
-                        '  func.fy = CDbl(array(1, 5))  ' FY2018 column
-                        func.fy = func.fyminus2  ' FY2016 column
-                        oSubFunctions.Add(func)
-                    End If
+                If Not array(1, 1) = Nothing Then ' Function or Sub-Function Name
+                    func.Name = array(1, 1)
+                    func.fy = array(1, 2)
+                    Total += func.fy
+                    oSubFunctions.Add(func)
                 End If
             Next
 
             Dim pct, pct1, pct2 As Double
             Dim str As String
-            'Sort by function name
-            oFunctions = oFunctions.OrderByDescending(Function(x) x.fy).ToList
+            'Sort by Sub-function's total FY amount descendent
             oSubFunctions = oSubFunctions.OrderByDescending(Function(x) x.fy).ToList
 
-            pct = oFunctions.Item(0).fy / tot.fy
-            pct2 = oFunctions.Item(1).fy / tot.fy
-            str = "The majority of the budget allocation for " & FYLabel & " aligns to " & oFunctions.Item(0).Name & " (" & FormatPercent(pct) & ") and " & oFunctions.Item(1).Name & " (" & FormatPercent(pct2) & ") "
-            str &= "business functions."
-            obs(0) = str
-            pct = oSubFunctions.Item(0).fy / tot.fy
-            pct1 = oSubFunctions.Item(1).fy / tot.fy
-            pct2 = oSubFunctions.Item(2).fy / tot.fy
+            'pct = oFunctions.Item(0).fy / tot.fy
+            'pct2 = oFunctions.Item(1).fy / tot.fy
+            'str = "The majority of the budget allocation for " & FYLabel & " aligns to " & oFunctions.Item(0).Name & " (" & FormatPercent(pct) & ") and " & oFunctions.Item(1).Name & " (" & FormatPercent(pct2) & ") "
+            'str &= "business functions."
+            'obs(0) = str
+            pct = oSubFunctions.Item(0).fy / Total
+            pct1 = oSubFunctions.Item(1).fy / Total
+            pct2 = oSubFunctions.Item(2).fy / Total
             str = "The top three sub-functions for " & FYLabel & " are " & oSubFunctions.Item(0).Name & " (" & FormatPercent(pct) & ")," & oSubFunctions.Item(1).Name & " (" & FormatPercent(pct1) & ") and " & oSubFunctions.Item(2).Name & " (" & FormatPercent(pct2) & ")"
             str &= "."
-            obs(1) = str
-
-            'Display results in listbox1
-            'For Each place As City In cities
-            '    ListBox1.Items.Add(place.Name)
-            'Next
+            obs(0) = str
 
         Catch ex As Exception
-            trace(ex.Message)
+            nErr = nErr + 1
+            Me.BackgroundWorker1.ReportProgress(100, "ERROR encountered processing EXCEL sheet '" & oSheet.Name & ". Processing aborted. See \errlog.txt")
+            Using w As StreamWriter = File.AppendText(apppath & "\errlog.txt")
+                Log(String.Format("EXCEPTION: Sheet={0} - {1}", oSheet.Name, ex.Message), w)
+            End Using
+        End Try
+
+    End Sub
+    Private Sub ReadFunctionsSheet(ByRef oSheet As Excel.Worksheet, ByRef obs() As String)
+        Try
+            Dim rowCount As Integer = oSheet.UsedRange.Rows.Count
+            Dim columnCount As Integer = oSheet.UsedRange.Columns.Count
+            Dim rows As Excel.Range = oSheet.UsedRange.Rows
+            Dim oFunctions As New List(Of cFunction)
+            ' **************************************
+            ' EA Business Functions (tab)
+            '***************************************
+            Dim vr As Excel.Range = oSheet.Range("B5", "B5")
+            Dim words() As String = vr.Value2.Split()
+            Dim FYLabel As String = words(2)
+            Dim Total As Double = 0
+
+
+            For rowNo As Integer = 7 To rowCount
+                Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "C" & rowNo)
+                Dim array As Object = value_range.Value2
+                Dim func As New cFunction
+
+                If Not array(1, 1) = Nothing Then ' Function or Sub-Function Name
+                    func.Name = array(1, 1)
+                    func.fy = array(1, 2)
+                    Total += func.fy
+                    oFunctions.Add(func)
+                End If
+            Next
+
+            Dim pct, pct1, pct2 As Double
+            Dim str As String
+            'Sort by Sub-function's total FY amount descendent
+            oFunctions = oFunctions.OrderByDescending(Function(x) x.fy).ToList
+            pct = oFunctions.Item(0).fy / Total
+            pct1 = oFunctions.Item(1).fy / Total
+            pct2 = oFunctions.Item(2).fy / Total
+            str = "The majority of the budget allocation for " & FYLabel & " aligns to " & oFunctions.Item(0).Name & " (" & FormatPercent(pct) & ") And " & oFunctions.Item(1).Name & " (" & FormatPercent(pct2) & ") "
+            str &= "business functions."
+            obs(0) = str
+
+        Catch ex As Exception
+            nErr = nErr + 1
+            Me.BackgroundWorker1.ReportProgress(100, "ERROR encountered processing EXCEL sheet '" & oSheet.Name & ". Processing aborted. See \errlog.txt")
+            Using w As StreamWriter = File.AppendText(apppath & "\errlog.txt")
+                Log(String.Format("EXCEPTION: Sheet={0} - {1}", oSheet.Name, ex.Message), w)
+            End Using
         End Try
 
     End Sub
@@ -725,15 +759,20 @@ Public Class frmMain
             Dim names As String = ""
             Dim charsToTrim() As Char = {"."c, " "c}
 
+            Dim vrF As Excel.Range = oSheet.Range("G7", "G7")
+            Dim words() As String = vrF.Value2.Split()
+            Dim FYLabel As String = words(2)
+
             Dim vr As Excel.Range = oSheet.Range("A8", "A8")
             Dim Org As String = vr.Value2.ToString()
 
+
             For rowNo As Integer = 9 To rowCount
-                Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "D" & rowNo)
+                Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "G" & rowNo)
                 Dim array As Object = value_range.Value2
 
                 If array(1, 1) = "Grand Total" Then ' This a grand total
-                    total = CDbl(array(1, 4))
+                    total = CDbl(array(1, 7))
                     Exit For
                 End If
 
@@ -745,18 +784,22 @@ Public Class frmMain
             Next
             Dim msg As String
             If n > 5 Then
-                msg = String.Format("There are {0} systems in the portfolio supporting Public Health Surveillance activities for {1} with a total FY2018 budget of {2}", n, Org, FormatNumber(total))
+                msg = String.Format("There are {0} systems in the portfolio supporting Public Health Surveillance activities for {1} with a total {2} budget of {3}", n, Org, FYLabel, FormatNumber(total))
             ElseIf n > 1 Then
-                names = ReplaceLastOccurrence(names, "|", " and")
+                names = ReplaceLastOccurrence(names, "|", " And")
                 names = names.Replace("|", ", ")
-                msg = String.Format("The following {0} systems in the portfolio supports Public Health Surveillance activities for {1} with a total FY2018 budget of {2}: {3}", n, Org, FormatNumber(total), names)
+                msg = String.Format("The following {0} systems in the portfolio supports Public Health Surveillance activities for {1} with a total {2} budget of {3}: {4}", n, Org, FYLabel, FormatNumber(total), names)
             Else
-                msg = String.Format("The [system] {0} supports Public Health Surveillance activities for {1} with an FY2018 budget of {2}.", names, Org, FormatNumber(total))
+                msg = String.Format("The [system] {0} supports Public Health Surveillance activities for {1} with an {2} budget of {3}.", names, Org, FYLabel, FormatNumber(total))
             End If
             obs(0) = msg
 
         Catch ex As Exception
-            trace(ex.Message)
+            nErr = nErr + 1
+            Me.BackgroundWorker1.ReportProgress(100, "ERROR encountered processing EXCEL sheet '" & oSheet.Name & ". Processing aborted. See \errlog.txt")
+            Using w As StreamWriter = File.AppendText(apppath & "\errlog.txt")
+                Log(String.Format("EXCEPTION: Sheet={0} - {1}", oSheet.Name, ex.Message), w)
+            End Using
         End Try
 
     End Sub
