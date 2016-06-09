@@ -758,12 +758,16 @@ Public Class frmMain
             Dim columnCount As Integer = oSheet.UsedRange.Columns.Count
             Dim rows As Excel.Range = oSheet.UsedRange.Rows
             Dim n As Integer = 0
-            Dim total As Double
+            Dim total As Double = 0, totalProjected As Double = 0
             Dim names As String = ""
             Dim charsToTrim() As Char = {"."c, " "c}
 
-            Dim vrF As Excel.Range = oSheet.Range("G7", "G7")
+            Dim vrF As Excel.Range = oSheet.Range("D7", "D7")
             Dim words() As String = vrF.Value2.Split()
+            Dim FYLabel2 As String = words(1)
+
+            vrF = oSheet.Range("G7", "G7")
+            words = vrF.Value2.Split()
             Dim FYLabel As String = words(2)
 
             Dim vr As Excel.Range = oSheet.Range("A8", "A8")
@@ -775,6 +779,7 @@ Public Class frmMain
                 Dim array As Object = value_range.Value2
 
                 If array(1, 1) = "Grand Total" Then ' This a grand total
+                    totalProjected = CDbl(array(1, 4))
                     total = CDbl(array(1, 7))
                     Exit For
                 End If
@@ -786,14 +791,26 @@ Public Class frmMain
                 End If
             Next
             Dim msg As String
+            Dim w As String = ""
+            If total > 0 And totalProjected > 0 Then
+                If Not total = totalProjected Then
+                    If total > totalProjected Then  ' total projected is the future FY
+                        w = String.Format(", and {0} budget's request of {1} which is a decrease of {2}%", FYLabel2, FormatNumber(totalProjected), Math.Round((total - totalProjected) / Math.Abs(total) * 100), 2)
+                    Else
+                        w = String.Format(", and {0} budget's request of {1} which is an increase of {2}%", FYLabel2, FormatNumber(totalProjected), Math.Round((totalProjected - total) / Math.Abs(totalProjected) * 100), 2)
+                    End If
+                End If
+            End If
+
+
             If n > 5 Then
-                msg = String.Format("There are {0} systems in the portfolio supporting Public Health Surveillance activities for {1} with a total {2} budget of {3}", n, Org, FYLabel, FormatNumber(total))
+                msg = String.Format("There are {0} systems in the portfolio supporting Public Health Surveillance activities for {1} with a total {2} budget of {3} {4}.", n, Org, FYLabel, FormatNumber(total), w)
             ElseIf n > 1 Then
                 names = ReplaceLastOccurrence(names, "|", " And")
                 names = names.Replace("|", ", ")
-                msg = String.Format("The following {0} systems in the portfolio supports Public Health Surveillance activities for {1} with a total {2} budget of {3}: {4}", n, Org, FYLabel, FormatNumber(total), names)
+                msg = String.Format("The following {0} systems in the portfolio supports Public Health Surveillance activities for {1} with a total {2} budget of {3} {4}:   {5}.", n, Org, FYLabel, FormatNumber(total), w, names)
             Else
-                msg = String.Format("The [system] {0} supports Public Health Surveillance activities for {1} with an {2} budget of {3}.", names, Org, FYLabel, FormatNumber(total))
+                msg = String.Format("The [system] {0} supports Public Health Surveillance activities for {1} with an {2} budget of {3} {4}.", names, Org, FYLabel, FormatNumber(total), w)
             End If
             obs(0) = msg
 
