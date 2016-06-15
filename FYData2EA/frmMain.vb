@@ -258,7 +258,7 @@ Public Class frmMain
                                             msg = String.Format("Exactly {0} systems in the portfolio have been reported as providing minimal or no contribution to the CDC and/or CIO's strategic objectives.", cnt)
                                         ElseIf cnt > 1 Then
                                             str = ReplaceLastOccurrence(observations(d), "|", " and")
-                                            str = str.Replace("|", ", ")
+                                            str = str.Replace("|", ",")
                                             msg = String.Format("The following {0} system(s) in the portfolio have been reported as providing minimal or no contribution to the CDC and/or CIO's strategic objectives: {1}.", cnt, str)
                                         Else
                                             msg = String.Format("The [system] {0} was reported as providing minimal or no contribution to the CDC and/or CIO's strategic objectives.", observations(d))
@@ -273,7 +273,7 @@ Public Class frmMain
                                             msg = String.Format("Exactly {0} systems in the portfolio have been reported with operational and/or technical deficiencies which prevent meeting the business needs.", cnt)
                                         ElseIf cnt > 1 Then
                                             str = ReplaceLastOccurrence(observations(d), "|", " and")
-                                            str = str.Replace("|", ", ")
+                                            str = str.Replace("|", ",")
                                             msg = String.Format("The following {0} system(s) in the portfolio have been reported with operational and/or technical deficiencies which prevent meeting the business needs: {1}.", cnt, str)
                                         Else
                                             msg = String.Format("The [system] {0} was reported with operational and/or technical deficiencies which prevent meeting the business needs.", observations(d))
@@ -285,7 +285,7 @@ Public Class frmMain
                                             msg = String.Format("Exactly {0} systems in the portfolio are not meeting the business benefits and/or business needs.", cnt)
                                         ElseIf cnt > 1 Then
                                             str = ReplaceLastOccurrence(observations(d), "|", " and")
-                                            str = str.Replace("|", ", ")
+                                            str = str.Replace("|", ",")
                                             msg = String.Format("The following {0} system(s) in the portfolio are not meeting the business benefits and/or business needs: {1}.", cnt, str)
                                         Else
                                             msg = String.Format("The [system] {0} is not meeting the business benefits and/or business needs.", observations(d))
@@ -296,7 +296,7 @@ Public Class frmMain
                                             msg = String.Format("Exactly {0} systems in the portfolio were reported as rigid and un-feasible to undergo enhancements when new business requirements emerge.", cnt)
                                         ElseIf cnt > 1 Then
                                             str = ReplaceLastOccurrence(observations(d), "|", " and")
-                                            str = str.Replace("|", ", ")
+                                            str = str.Replace("|", ",")
                                             msg = String.Format("The following {0} system(s) in the portfolio were reported as rigid and un-feasible to enhance/modify when new business requirements emerge: {1}.", cnt, str)
                                         Else
                                             msg = String.Format("The [system] {0} was reported as rigid and un-feasible to enhance/modify when new business requirements emerge.", observations(d))
@@ -309,7 +309,7 @@ Public Class frmMain
                                             msg = String.Format("Exactly {0} systems in the portfolio have been flagged as candidate for retirement during the latest FY IT assessment.", cnt)
                                         ElseIf cnt > 1 Then
                                             str = ReplaceLastOccurrence(observations(d), "|", " and")
-                                            str = str.Replace("|", ", ")
+                                            str = str.Replace("|", ",")
                                             msg = String.Format("The following {0} system(s) in the portfolio were flagged as candidate for retirement during the latest FY IT assessment: {1}.", cnt, str)
                                         Else
                                             msg = String.Format("The [system] {0} was flagged for retirement during the latest FY IT assessment.", observations(d))
@@ -321,7 +321,7 @@ Public Class frmMain
                                             msg = String.Format("Exactly {0} systems in the portfolio are reported at risk for operational interruption given their dependencies on outdated or obsolete technologies.", cnt)
                                         ElseIf cnt > 1 Then
                                             str = ReplaceLastOccurrence(observations(d), "|", " and")
-                                            str = str.Replace("|", ", ")
+                                            str = str.Replace("|", ",")
                                             msg = String.Format("The following {0} systems in the portfolio are reported at risk for operational interruption given their dependencies on outdated and obsolete technologies: {1}.", cnt, str)
                                         Else
                                             msg = String.Format("The [system] {0} was reprted at risk for operational interruption given its reliance on outdated and obsolete technologies.", observations(d))
@@ -338,7 +338,7 @@ Public Class frmMain
                                             msg2 = String.Format("Exactly {0} systems in the portfolio have been reported as having capabilities that would be valuable to other organizations but are not currently shared.", cnt2)
                                         ElseIf cnt2 > 1 Then
                                             str = ReplaceLastOccurrence(observations2(d), "|", " and")
-                                            str = str.Replace("|", ", ")
+                                            str = str.Replace("|", ",")
                                             msg2 = String.Format("The following {0} systems in the portfolio have been reported as having capabilities that would be valuable to other organizations but are not currently shared: {1}.", cnt2, str)
                                         Else
                                             msg2 = String.Format("The [system] {0} is reported as having capabilities that would be valuable to other organizations but these capabilities are not currently shared.", observations2(d))
@@ -350,7 +350,7 @@ Public Class frmMain
                                             msg2 = String.Format("Exactly {0} systems in the portfolio were flagged for potential consolidation or replacement based on existing and improved alternatives.", cnt2)
                                         ElseIf cnt2 > 1 Then
                                             str = ReplaceLastOccurrence(observations2(d), "|", " and")
-                                            str = str.Replace("|", ", ")
+                                            str = str.Replace("|", ",")
                                             msg2 = String.Format("The following {0} systems in the portfolio were flagged for potential consolidation or replacement based on existing and improved alternatives: {1}.", cnt2, str)
                                         Else
                                             msg2 = String.Format("The [system] {0} was flagged for potential consolidation or replacement based on existing and improved alternatives.", observations2(d))
@@ -366,7 +366,7 @@ Public Class frmMain
                                             msg3 = String.Format("Exactly {0} systems in the portfolio currently offer capabilities as services to other organizations.", cnt3)
                                         ElseIf cnt3 > 1 Then
                                             str = ReplaceLastOccurrence(observations3(d), "|", " and")
-                                            str = str.Replace("|", ", ")
+                                            str = str.Replace("|", ",")
                                             msg3 = String.Format("The following {0} systems in the portfolio currently offer capabilities as services to other organizations: {1}.", cnt3, str)
                                         Else
                                             msg3 = String.Format("The [system] {0} currently offers capabilities as services to other organizations.", observations3(d))
@@ -795,22 +795,22 @@ Public Class frmMain
             If total > 0 And totalProjected > 0 Then
                 If Not total = totalProjected Then
                     If total > totalProjected Then  ' total projected is the future FY
-                        w = String.Format(", and {0} budget's request of {1} which is a decrease of {2}%", FYLabel2, FormatNumber(totalProjected), Math.Round((total - totalProjected) / Math.Abs(total) * 100), 2)
+                        w = String.Format(", and a {0} budget request of {1} which is a decrease of {2}%", FYLabel2, FormatNumber(totalProjected), Math.Round((total - totalProjected) / Math.Abs(total) * 100), 2)
                     Else
-                        w = String.Format(", and {0} budget's request of {1} which is an increase of {2}%", FYLabel2, FormatNumber(totalProjected), Math.Round((totalProjected - total) / Math.Abs(totalProjected) * 100), 2)
+                        w = String.Format(", and a {0} budget request of {1} which is an increase of {2}%", FYLabel2, FormatNumber(totalProjected), Math.Round((totalProjected - total) / Math.Abs(totalProjected) * 100), 2)
                     End If
                 End If
             End If
 
 
             If n > 5 Then
-                msg = String.Format("There are {0} systems in the portfolio supporting Public Health Surveillance activities for {1} with a total {2} budget of {3} {4}.", n, Org, FYLabel, FormatNumber(total), w)
+                msg = String.Format("There are {0} systems in the portfolio supporting Public Health Surveillance activities for {1} with a total {2} budget of {3}{4}.", n, Org, FYLabel, FormatNumber(total), w)
             ElseIf n > 1 Then
-                names = ReplaceLastOccurrence(names, "|", " And")
-                names = names.Replace("|", ", ")
-                msg = String.Format("The following {0} systems in the portfolio supports Public Health Surveillance activities for {1} with a total {2} budget of {3} {4}:   {5}.", n, Org, FYLabel, FormatNumber(total), w, names)
+                names = ReplaceLastOccurrence(names, "|", " and")
+                names = names.Replace("|", ",")
+                msg = String.Format("The following {0} systems in the portfolio supports Public Health Surveillance activities for {1} with a total {2} budget of {3}{4}:   {5}.", n, Org, FYLabel, FormatNumber(total), w, names)
             Else
-                msg = String.Format("The [system] {0} supports Public Health Surveillance activities for {1} with an {2} budget of {3} {4}.", names, Org, FYLabel, FormatNumber(total), w)
+                msg = String.Format("The [system] {0} supports Public Health Surveillance activities for {1} with an {2} budget of {3}{4}.", names, Org, FYLabel, FormatNumber(total), w)
             End If
             obs(0) = msg
 
