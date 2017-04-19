@@ -13,7 +13,7 @@ Imports System.Runtime.InteropServices
 <Assembly: AssemblyCompany("CDC")>
 <Assembly: AssemblyProduct("FYData2EA")>
 <Assembly: AssemblyCopyright("Copyright ©  2016")>
-<Assembly: AssemblyTrademark("")>
+<Assembly: AssemblyTrademark("Developed by Ricky Freyre (JRF1)")>
 
 <Assembly: ComVisible(True)>
 

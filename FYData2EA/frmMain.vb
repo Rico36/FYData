@@ -607,14 +607,23 @@ Public Class frmMain
             Dim charsToTrim() As Char = {"."c, " "c}
             'Dim LineRow As Matrix
 
+            Dim row As Integer
+            'Find the first row that contains the word "CIO" by itself in the column A.  
+            row = FindLabelRowNumber(oSheet, "CIO", "A1", "A20")
+            'If not found,look for the words "Row Labels" (multiple spreadsheet versions were created in the past). Dont blame me. 
+            If row < 1 Then row = FindLabelRowNumber(oSheet, "Row Labels", "A1", "A20")
 
-            For rowNo As Integer = 15 To rowCount
+            If row < 1 Then row = 14  ' in case we couldn't find the starting row we must default to row 14. 
+            row = row + 1
+
+            For rowNo As Integer = row To rowCount
                 Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "R" & rowNo)
                 Dim array As Object = value_range.Value2
                 '*** Convert the counter into a percent. ***
-                counter = CInt(((rowNo - 14) * 100) / (rowCount - 14))
+                counter = CInt(((rowNo - row) * 100) / (rowCount - row))
                 '*** Telling user that a system was processed. ***
-                If Not IsNumeric(array(1, 1)) Then
+                If Not array(1, 1) = Nothing Then
+                    ' Tell the user which system is being analyzed ... 
                     Me.BackgroundWorker1.ReportProgress(counter, String.Format("... analyzing '{0}'", array(1, 1)))
                 End If
 
@@ -660,8 +669,16 @@ Public Class frmMain
             Dim FYLabel As String = words(2)
             Dim Total As Double = 0
 
+            Dim row As Integer
+            'Find the first row that contains the word "CIO" by itself in the column A.  
+            row = FindLabelRowNumber(oSheet, "CIO", "A1", "A20")
+            'If not found,look for the words "Row Labels" (multiple spreadsheet versions were created in the past). Dont blame me. 
+            If row < 1 Then row = FindLabelRowNumber(oSheet, "Row Labels", "A1", "A20")
 
-            For rowNo As Integer = 7 To rowCount + 10
+            If row < 1 Then row = 6  ' in case we couldn't find the starting row we must default to row 14. 
+            row = row + 1
+
+            For rowNo As Integer = row To rowCount + 10
                 Dim value_range As Excel.Range = oSheet.Range("B" & rowNo, "C" & rowNo)
                 Dim array As Object = value_range.Value2
                 Dim func As New cFunction
@@ -714,8 +731,17 @@ Public Class frmMain
             Dim FYLabel As String = words(2)
             Dim Total As Double = 0
 
+            Dim row As Integer
+            'Find the first row that contains the word "CIO" by itself in the column A.  
+            row = FindLabelRowNumber(oSheet, "CIO", "A1", "A20")
+            'If not found,look for the words "Row Labels" (multiple spreadsheet versions were created in the past). Dont blame me. 
+            If row < 1 Then row = FindLabelRowNumber(oSheet, "Row Labels", "A1", "A20")
 
-            For rowNo As Integer = 7 To rowCount + 10
+            If row < 1 Then row = 5  ' in case we couldn't find the starting row we must default to row 5. 
+            row = row + 2
+
+
+            For rowNo As Integer = row To rowCount + 10
                 Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "C" & rowNo)
                 Dim array As Object = value_range.Value2
                 Dim func As New cFunction
@@ -773,8 +799,17 @@ Public Class frmMain
             Dim vr As Excel.Range = oSheet.Range("A8", "A8")
             Dim Org As String = vr.Value2.ToString()
 
+            Dim row As Integer
+            'Find the first row that contains the word "CIO" by itself in the column A.  
+            row = FindLabelRowNumber(oSheet, "CIO", "A1", "A20")
+            'If not found,look for the words "Row Labels" (multiple spreadsheet versions were created in the past). Dont blame me. 
+            If row < 1 Then row = FindLabelRowNumber(oSheet, "Row Labels", "A1", "A20")
 
-            For rowNo As Integer = 9 To rowCount + 10
+            If row < 1 Then row = 7  ' in case we couldn't find the starting row we must default to row 7. 
+            row = row + 2
+
+
+            For rowNo As Integer = row To rowCount + 10
                 Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "G" & rowNo)
                 Dim array As Object = value_range.Value2
 
