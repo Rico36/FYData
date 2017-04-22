@@ -199,22 +199,29 @@ Public Class frmMain
                     Array.Clear(observations2, 0, observations.Length)
                     Array.Clear(observations3, 0, observations.Length)
 
-                    If sheetName = "EA Business Sub-Functions" Then
-                        ReadSubFunctionsSheet(oSheet, observations)
-                        If Not observations(0) = String.Empty Then
-                            Using w As StreamWriter = File.AppendText(apppath & "\" & GetFileName(f) & ".txt")
-                                LogText(String.Format("[Business SubFunctions] - Budget distribution towards sub-functions: {0}", observations(0)), w)
-                            End Using
-                        End If
-                    End If
-                    If sheetName = "EA Business Functions" Then
-                        ReadFunctionsSheet(oSheet, observations)
+                    If sheetName = "Function & Sub-Function Data" Then
+                        ReadFunctionsSubFunctionsSheet(oSheet, observations, observations2)
                         If Not observations(0) = String.Empty Then
                             Using w As StreamWriter = File.AppendText(apppath & "\" & GetFileName(f) & ".txt")
                                 LogText(String.Format("[Business Functions] - Alignment towards Business Functions: {0}", observations(0)), w)
                             End Using
                         End If
+                        If Not observations2(0) = String.Empty Then
+                            Using w As StreamWriter = File.AppendText(apppath & "\" & GetFileName(f) & ".txt")
+                                LogText(String.Format("[Business SubFunctions] - Budget distribution towards sub-functions: {0}", observations2(0)), w)
+                            End Using
+                        End If
                     End If
+
+                    If sheetName = "Unsupported Technology" Then
+                        ReadUnsupportedTechnologySheet(oSheet, observations)
+                        If Not observations(0) = String.Empty Then
+                            Using w As StreamWriter = File.AppendText(apppath & "\" & GetFileName(f) & ".txt")
+                                LogText(String.Format("[Unsopported Technology]- {0}", observations(0)), w)
+                            End Using
+                        End If
+                    End If
+
 
                     If sheetName = "EA-Surveillance Systems" Then
                         ReadSurveillanceSheet(oSheet, observations2)
@@ -401,7 +408,6 @@ Public Class frmMain
             Else
                 Me.BackgroundWorker1.ReportProgress(100, "Completed.")
             End If
-            Me.BackgroundWorker1.ReportProgress(100, "Completed.")
 
         Catch ex As Exception
             Using w As StreamWriter = File.AppendText(apppath & "\errlog.txt")
@@ -631,15 +637,15 @@ Public Class frmMain
                     If IsNumeric(array(1, i)) Then
                         If (Val(array(1, i)) = 1) Then
                             If Not obs(i - 2) = String.Empty Then obs(i - 2) += "| "
-                            obs(i - 2) += Regex.Replace(array(1, 1), "[\d-]", String.Empty).TrimStart().TrimEnd(charsToTrim)
+                            obs(i - 2) += Chr(34) & Regex.Replace(array(1, 1), "[\d-]", String.Empty).TrimStart().TrimEnd(charsToTrim) & Chr(34)
                         End If
                         If (Val(array(1, i)) = 2) Then
                             If Not obs2(i - 2) = String.Empty Then obs2(i - 2) += "| "
-                            obs2(i - 2) += Regex.Replace(array(1, 1), "[\d-]", String.Empty).TrimStart().TrimEnd(charsToTrim)
+                            obs2(i - 2) += Chr(34) & Regex.Replace(array(1, 1), "[\d-]", String.Empty).TrimStart().TrimEnd(charsToTrim) & Chr(34)
                         End If
                         If (Val(array(1, i)) = 3) Then
                             If Not obs3(i - 2) = String.Empty Then obs3(i - 2) += "| "
-                            obs3(i - 2) += Regex.Replace(array(1, 1), "[\d-]", String.Empty).TrimStart().TrimEnd(charsToTrim)
+                            obs3(i - 2) += Chr(34) & Regex.Replace(array(1, 1), "[\d-]", String.Empty).TrimStart().TrimEnd(charsToTrim) & Chr(34)
                         End If
                     End If
                 Next
@@ -653,7 +659,7 @@ Public Class frmMain
         End Try
     End Sub
 
-    Private Sub ReadSubFunctionsSheet(ByRef oSheet As Excel.Worksheet, ByRef obs() As String)
+    Private Sub ReadFunctionsSubFunctionsSheet(ByRef oSheet As Excel.Worksheet, ByRef obs() As String, ByRef obs2() As String)
         Try
             Dim rowCount As Integer = oSheet.UsedRange.Rows.Count
             Dim columnCount As Integer = oSheet.UsedRange.Columns.Count
@@ -661,113 +667,115 @@ Public Class frmMain
             Dim oFunctions As New List(Of cFunction)
             Dim oSubFunctions As New List(Of cFunction)
             Dim tot As New cFunction
-            ' **************************************
-            ' EA Business Sub-Functions (tab)
-            '***************************************
-            Dim vr As Excel.Range = oSheet.Range("C6", "C6")
-            Dim words() As String = vr.Value2.Split()
-            Dim FYLabel As String = words(2)
-            Dim Total As Double = 0
-
             Dim row As Integer
-            'Find the first row that contains the word "CIO" by itself in the column A.  
-            row = FindLabelRowNumber(oSheet, "CIO", "A1", "A20")
-            'If not found,look for the words "Row Labels" (multiple spreadsheet versions were created in the past). Dont blame me. 
-            If row < 1 Then row = FindLabelRowNumber(oSheet, "Row Labels", "A1", "A20")
+            Dim bFunction As Boolean = True
 
-            If row < 1 Then row = 6  ' in case we couldn't find the starting row we must default to row 14. 
-            row = row + 1
-
-            For rowNo As Integer = row To rowCount + 10
-                Dim value_range As Excel.Range = oSheet.Range("B" & rowNo, "C" & rowNo)
-                Dim array As Object = value_range.Value2
-                Dim func As New cFunction
-
-                If Not array(1, 1) = Nothing Then ' Function or Sub-Function Name
-                    func.Name = array(1, 1)
-                    func.fy = array(1, 2)
-                    Total += func.fy
-                    oSubFunctions.Add(func)
-                End If
-            Next
-
-            Dim pct, pct1, pct2 As Double
-            Dim str As String
-            'Sort by Sub-function's total FY amount descendent
-            oSubFunctions = oSubFunctions.OrderByDescending(Function(x) x.fy).ToList
-
-            'pct = oFunctions.Item(0).fy / tot.fy
-            'pct2 = oFunctions.Item(1).fy / tot.fy
-            'str = "The majority of the budget allocation for " & FYLabel & " aligns to " & oFunctions.Item(0).Name & " (" & FormatPercent(pct) & ") and " & oFunctions.Item(1).Name & " (" & FormatPercent(pct2) & ") "
-            'str &= "business functions."
-            'obs(0) = str
-            pct = oSubFunctions.Item(0).fy / Total
-            pct1 = oSubFunctions.Item(1).fy / Total
-            pct2 = oSubFunctions.Item(2).fy / Total
-            str = "The top three sub-functions for " & FYLabel & " are " & oSubFunctions.Item(0).Name & " (" & FormatPercent(pct) & ")," & oSubFunctions.Item(1).Name & " (" & FormatPercent(pct1) & ") and " & oSubFunctions.Item(2).Name & " (" & FormatPercent(pct2) & ")"
-            str &= "."
-            obs(0) = str
-
-        Catch ex As Exception
-            nErr = nErr + 1
-            Me.BackgroundWorker1.ReportProgress(100, "ERROR encountered processing EXCEL sheet '" & oSheet.Name & ". Processing aborted. See \errlog.txt")
-            Using w As StreamWriter = File.AppendText(apppath & "\errlog.txt")
-                Log(String.Format("EXCEPTION: Sheet={0} - {1}", oSheet.Name, ex.Message), w)
-            End Using
-        End Try
-
-    End Sub
-    Private Sub ReadFunctionsSheet(ByRef oSheet As Excel.Worksheet, ByRef obs() As String)
-        Try
-            Dim rows As Excel.Range = oSheet.UsedRange.Rows
-            Dim rowCount As Integer = oSheet.UsedRange.Rows.Count
-            Dim columnCount As Integer = oSheet.UsedRange.Columns.Count
-            Dim oFunctions As New List(Of cFunction)
-            ' **************************************
-            ' EA Business Functions (tab)
-            '***************************************
-            Dim vr As Excel.Range = oSheet.Range("B5", "B5")
-            Dim words() As String = vr.Value2.Split()
-            Dim FYLabel As String = words(2)
-            Dim Total As Double = 0
-
-            Dim row As Integer
             'Find the first row that contains the word "CIO" by itself in the column A.  
             row = FindLabelRowNumber(oSheet, "CIO", "A1", "A20")
             'If not found,look for the words "Row Labels" (multiple spreadsheet versions were created in the past). Dont blame me. 
             If row < 1 Then row = FindLabelRowNumber(oSheet, "Row Labels", "A1", "A20")
 
             If row < 1 Then row = 5  ' in case we couldn't find the starting row we must default to row 5. 
+
+            ' **************************************
+            ' Read the current FY (i.e., FY2019) 
+            ' from the D column's heading
+            '***************************************
+            Dim vr As Excel.Range = oSheet.Range("D" & row, "D" & row)
+            Dim words() As String = vr.Value2.Split()
+            Dim FYLabel As String = words(1)
+            Dim Total As Double = 0
+            Dim FunctionTotal As Double = 0
+
             row = row + 2
 
-
             For rowNo As Integer = row To rowCount + 10
-                Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "C" & rowNo)
+                Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "D" & rowNo)
                 Dim array As Object = value_range.Value2
                 Dim func As New cFunction
 
-                If array(1, 1) = "Grand Total" Then ' This a grand total
-                    Exit For
-                End If
+                If Not array(1, 1) = Nothing Then
+                    If array(1, 1) = "Grand Total" Then ' We can exit now
+                        Exit For
+                    End If
 
-                If Not array(1, 1) = Nothing Then ' Function or Sub-Function Name
-                    func.Name = array(1, 1)
-                    func.fy = array(1, 2)
-                    Total += func.fy
-                    oFunctions.Add(func)
+                    func.Name = Trim(array(1, 1))    ' Function or Sub-Function Name
+                    func.fy = array(1, 4)     ' FY total $
+                    If bFunction Then        ' if this is a Function, remember the Function's FY Total
+                        FunctionTotal = func.fy
+                        oFunctions.Add(func)
+                        bFunction = False
+                    Else
+                        Total += func.fy      ' add the fy total for each sub-function row found 
+                        oSubFunctions.Add(func)
+                    End If
+                    If Total = FunctionTotal Then ' If the sub-function fy total equals the function total we have ended processing this Function
+                        bFunction = True    ' Next read must be a new Function
+                        Total = 0   ' reset the sub-function total from memmory
+                    End If
                 End If
             Next
 
             Dim pct, pct1, pct2 As Double
             Dim str As String
-            'Sort by Sub-function's total FY amount descendent
+            ' ***********************************
+            ' Report the top 2 function (top money allocated)
+            ' ***********************************
+            'Sort by function's total FY amount descendent
             oFunctions = oFunctions.OrderByDescending(Function(x) x.fy).ToList
-            pct = oFunctions.Item(0).fy / Total
-            pct1 = oFunctions.Item(1).fy / Total
-            pct2 = oFunctions.Item(2).fy / Total
-            str = "The majority of the budget allocation for " & FYLabel & " aligns to " & oFunctions.Item(0).Name & " (" & FormatPercent(pct) & ") And " & oFunctions.Item(1).Name & " (" & FormatPercent(pct2) & ") "
-            str &= "business functions."
-            obs(0) = str
+            Total = oFunctions.Sum(Function(item) item.fy)
+
+            rowCount = oFunctions.Count
+            If rowCount > 1 Then
+                pct = oFunctions.Item(0).fy / Total
+                pct1 = oFunctions.Item(1).fy / Total
+                str = "The majority of the budget allocation for " & FYLabel & " aligns to " & Chr(34) & oFunctions.Item(0).Name & Chr(34) & " (" & FormatPercent(pct) & ") and " & Chr(34) & oFunctions.Item(1).Name & Chr(34) & " (" & FormatPercent(pct1) & ") "
+                str &= "business functions."
+                obs(0) = str
+            ElseIf rowCount > 0 Then
+                pct = oFunctions.Item(0).fy / Total
+                str = "The budget for " & FYLabel & " aligns to " & Chr(34) & oFunctions.Item(0).Name & Chr(34) & " (" & FormatPercent(pct) & ")"
+                str &= "business function."
+                obs(0) = str
+            End If
+
+            ' ***********************************
+            ' Report the top three sub-functions (top three money allocated)
+            ' ***********************************
+            'Sort by Sub-function's total FY amount, descendent
+            rowCount = oSubFunctions.Count
+            oSubFunctions = oSubFunctions.OrderByDescending(Function(x) x.fy).ToList
+            Total = oSubFunctions.Sum(Function(item) item.fy)
+            If rowCount > 2 Then
+                ' These are the top three:
+                pct = oSubFunctions.Item(0).fy / Total
+                pct1 = oSubFunctions.Item(1).fy / Total
+                pct2 = oSubFunctions.Item(2).fy / Total
+
+                str = "The top three sub-functions for " & FYLabel & " are " & Chr(34) & oSubFunctions.Item(0).Name & Chr(34) & " (" & FormatPercent(pct) & ")," & Chr(34) & oSubFunctions.Item(1).Name & Chr(34) & " (" & FormatPercent(pct1) & ") and " & Chr(34) & oSubFunctions.Item(2).Name & Chr(34) & " (" & FormatPercent(pct2) & ")"
+                str &= "."
+                obs2(0) = str
+            Else
+
+                If rowCount > 1 Then
+                    ' These are the top three:
+                    pct = oSubFunctions.Item(0).fy / Total
+                    pct1 = oSubFunctions.Item(1).fy / Total
+
+                    str = "The top two sub-functions for " & FYLabel & " are " & Chr(34) & oSubFunctions.Item(0).Name & Chr(34) & " (" & FormatPercent(pct) & ") and " & Chr(34) & oSubFunctions.Item(1).Name & Chr(34) & " (" & FormatPercent(pct1) & ")"
+                    str &= "."
+                    obs2(0) = str
+
+                ElseIf rowCount > 0 Then
+                    ' This is the top function:
+                    pct = oSubFunctions.Item(0).fy / Total
+                    str = "The top sub-function for " & FYLabel & " is " & Chr(34) & oSubFunctions.Item(0).Name & Chr(34) & " (" & FormatPercent(pct) & ")"
+                    str &= "."
+                    obs2(0) = str
+
+                End If
+            End If
+
 
         Catch ex As Exception
             nErr = nErr + 1
@@ -778,6 +786,74 @@ Public Class frmMain
         End Try
 
     End Sub
+
+    Private Sub ReadUnsupportedTechnologySheet(ByRef oSheet As Excel.Worksheet, ByRef obs() As String)
+        Try
+            Dim rowCount As Integer = oSheet.UsedRange.Rows.Count
+            Dim columnCount As Integer = oSheet.UsedRange.Columns.Count
+            Dim rows As Excel.Range = oSheet.UsedRange.Rows
+            Dim oSystems As New List(Of cTally)
+            Dim charsToTrim() As Char = {"."c, " "c}
+            Dim row As Integer
+            Dim Total As Integer = 0
+
+            'Find the first row that contains the word "CIO" by itself in the column A.  
+            row = FindLabelRowNumber(oSheet, "CIO", "A1", "A20")
+            'If not found,look for the words "Row Labels" (multiple spreadsheet versions were created in the past). Dont blame me. 
+            If row < 1 Then row = FindLabelRowNumber(oSheet, "Row Labels", "A1", "A20")
+
+            If row < 1 Then row = 2  ' in case we couldn't find the starting row we must default to row 5. 
+
+            row = row + 2
+
+            For rowNo As Integer = row To rowCount + 10
+                Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "D" & rowNo)
+                Dim array As Object = value_range.Value2
+                Dim item As cTally = Nothing
+                Dim system As cTally = Nothing
+
+                If Not array(1, 1) = Nothing Then
+                    If oSystems.Count > 0 Then
+                        item = oSystems.Find(Function(x) x.Name.Equals(Trim(array(1, 4))))
+                    End If
+
+                    If Not IsNothing(item) Then
+                        Dim ndx As Integer = oSystems.FindIndex(Function(x) (x.Equals(item)))
+                        item.num += 1
+                        'If Not item.Data = String.Empty Then item.Data += "| "
+                        'item.Data += Regex.Replace(array(1, 1), "[\d-]", String.Empty).TrimStart().TrimEnd(charsToTrim)
+                        oSystems(ndx) = item
+                    Else
+                        system = New cTally()
+                        system.Name = Trim(array(1, 4))    ' Unsupported category name
+                        'system.Data = Trim(array(1, 1))    ' System Name
+                        system.num = 1     ' FY total $
+                        oSystems.Add(system)
+                    End If
+                End If
+            Next
+            Dim dataRow As IEnumerable(Of cTally) = oSystems
+            Dim msg As String = ""
+
+            Total = oSystems.Sum(Function(item) item.num)
+            If Total > 0 Then
+                msg = String.Format("A OCISO security repository shows {0} systems which are running with unsupported technology.", Total)
+                For Each cat As cTally In dataRow
+                    msg += String.Format(" {0} {1} {2} ,", cat.num, IIf(cat.num > 1, "are", "is"), cat.Name)
+                Next
+            End If
+            obs(0) = msg
+
+        Catch ex As Exception
+            nErr = nErr + 1
+            Me.BackgroundWorker1.ReportProgress(100, "ERROR encountered processing EXCEL sheet '" & oSheet.Name & ". Processing aborted. See \errlog.txt")
+            Using w As StreamWriter = File.AppendText(apppath & "\errlog.txt")
+                Log(String.Format("EXCEPTION: Sheet={0} - {1}", oSheet.Name, ex.Message), w)
+            End Using
+        End Try
+
+    End Sub
+
     Private Sub ReadSurveillanceSheet(ByRef oSheet As Excel.Worksheet, ByRef obs() As String)
         Try
             Dim rowCount As Integer = oSheet.UsedRange.Rows.Count

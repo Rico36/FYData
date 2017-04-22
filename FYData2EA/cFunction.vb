@@ -17,7 +17,7 @@ Public Class cFunction
     Private _num As Integer
     Public Property num() As Integer
         Get
-            Return num
+            Return _num
         End Get
         Set(ByVal value As Integer)
             _num = value
