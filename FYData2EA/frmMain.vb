@@ -217,7 +217,7 @@ Public Class frmMain
                         ReadUnsupportedTechnologySheet(oSheet, observations)
                         If Not observations(0) = String.Empty Then
                             Using w As StreamWriter = File.AppendText(apppath & "\" & GetFileName(f) & ".txt")
-                                LogText(String.Format("[Unsopported Technology]- {0}", observations(0)), w)
+                                LogText(String.Format("[Unsupported Technology]- {0}", observations(0)), w)
                             End Using
                         End If
                     End If
@@ -331,7 +331,7 @@ Public Class frmMain
                                             str = str.Replace("|", ",")
                                             msg = String.Format("The following {0} systems in the portfolio are reported at risk for operational interruption given their dependencies on outdated and obsolete technologies: {1}.", cnt, str)
                                         Else
-                                            msg = String.Format("The [system] {0} was reprted at risk for operational interruption given its reliance on outdated and obsolete technologies.", observations(d))
+                                            msg = String.Format("The [system] {0} was reported at risk for operational interruption given its reliance on outdated and obsolete technologies.", observations(d))
                                         End If
                                         msg = msg & " Recommendation:  Begin planning a technology refresh to ensure proper continuity of services with the exception of those systems targeted for retirement."
 
@@ -807,14 +807,14 @@ Public Class frmMain
             row = row + 2
 
             For rowNo As Integer = row To rowCount + 10
-                Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "D" & rowNo)
+                Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "C" & rowNo)
                 Dim array As Object = value_range.Value2
                 Dim item As cTally = Nothing
                 Dim system As cTally = Nothing
 
                 If Not array(1, 1) = Nothing Then
                     If oSystems.Count > 0 Then
-                        item = oSystems.Find(Function(x) x.Name.Equals(Trim(array(1, 4))))
+                        item = oSystems.Find(Function(x) x.Name.Equals(Trim(array(1, 3))))
                     End If
 
                     If Not IsNothing(item) Then
@@ -825,7 +825,7 @@ Public Class frmMain
                         oSystems(ndx) = item
                     Else
                         system = New cTally()
-                        system.Name = Trim(array(1, 4))    ' Unsupported category name
+                        system.Name = Trim(array(1, 3))    ' Unsupported category name
                         'system.Data = Trim(array(1, 1))    ' System Name
                         system.num = 1     ' FY total $
                         oSystems.Add(system)
@@ -837,9 +837,11 @@ Public Class frmMain
 
             Total = oSystems.Sum(Function(item) item.num)
             If Total > 0 Then
-                msg = String.Format("A OCISO security repository shows {0} systems which are running with unsupported technology.", Total)
+                msg = String.Format("The OCISO security catalog shows {0} systems in your portfolio currently with unsupported technology. ", Total)
+                msg += "These systems are at risk for operational interruption and should be prioritized for modernization or termination. "
+                msg += "Recommendation:  Begin planning a technology refresh or replacement to ensure proper continuity of services.  Target systems for retirement when appropriate."
                 For Each cat As cTally In dataRow
-                    msg += String.Format(" {0} {1} {2} ,", cat.num, IIf(cat.num > 1, "are", "is"), cat.Name)
+                    msg += vbCrLf & String.Format("({0} {1} {2}) ", cat.num, IIf(cat.num > 1, "are", "Is"), cat.Name)
                 Next
             End If
             obs(0) = msg
@@ -847,7 +849,7 @@ Public Class frmMain
         Catch ex As Exception
             nErr = nErr + 1
             Me.BackgroundWorker1.ReportProgress(100, "ERROR encountered processing EXCEL sheet '" & oSheet.Name & ". Processing aborted. See \errlog.txt")
-            Using w As StreamWriter = File.AppendText(apppath & "\errlog.txt")
+                Using w As StreamWriter = File.AppendText(apppath & "\errlog.txt")
                 Log(String.Format("EXCEPTION: Sheet={0} - {1}", oSheet.Name, ex.Message), w)
             End Using
         End Try
