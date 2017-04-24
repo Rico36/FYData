@@ -812,7 +812,7 @@ Public Class frmMain
                 Dim item As cTally = Nothing
                 Dim system As cTally = Nothing
 
-                If Not array(1, 1) = Nothing Then
+                If Not array(1, 2) = Nothing Then
                     If oSystems.Count > 0 Then
                         item = oSystems.Find(Function(x) x.Name.Equals(Trim(array(1, 3))))
                     End If
