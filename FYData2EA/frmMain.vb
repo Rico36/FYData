@@ -837,11 +837,11 @@ Public Class frmMain
 
             Total = oSystems.Sum(Function(item) item.num)
             If Total > 0 Then
-                msg = String.Format("The OCISO security catalog shows {0} systems in your portfolio currently with unsupported technology. ", Total)
-                msg += "These systems are at risk for operational interruption and should be prioritized for modernization or termination. "
-                msg += "Recommendation:  Begin planning a technology refresh or replacement to ensure proper continuity of services.  Target systems for retirement when appropriate."
+                msg = String.Format("There {0} {1} system(s) in your portfolio using unsupported technologies (source: Annual OCISO Unsupported Technology data call). ", IIf(Total > 1, "are", "is"), Total)
+                msg += "Unsupported technologies have a high risk for operational interruption. "
+                msg += "Recommendation:  Begin planning a technology refresh or replacement to ensure proper continuity of services. Target systems for retirement when appropriate."
                 For Each cat As cTally In dataRow
-                    msg += vbCrLf & String.Format("({0} {1} {2}) ", cat.num, IIf(cat.num > 1, "are", "Is"), cat.Name)
+                    msg += vbCrLf & String.Format("({0} {1} {2}) ", cat.num, IIf(cat.num > 1, "are", "is"), cat.Name)
                 Next
             End If
             obs(0) = msg
