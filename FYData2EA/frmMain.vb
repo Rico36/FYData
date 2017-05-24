@@ -908,9 +908,9 @@ Public Class frmMain
             If prevFY_total > 0 And currentFYtotal > 0 Then
                 If Not prevFY_total = currentFYtotal Then
                     If prevFY_total > currentFYtotal Then  ' prevFY_total projected is the future FY
-                        w = String.Format(", which is a decrease of {0}% from {1}(${2})", Math.Round(((prevFY_total - currentFYtotal) / currentFYtotal) * 100, 1, MidpointRounding.AwayFromZero), FYLabel, FormatNumber(prevFY_total))
+                        w = String.Format(", which is a decrease of {0}% from {1}(${2})", Math.Round(((prevFY_total - currentFYtotal) * 100 / prevFY_total), 1, MidpointRounding.ToEven), FYLabel, FormatNumber(prevFY_total))
                     Else
-                        w = String.Format(", which is an increase of {0}% from {1}(${2})", Math.Round(((currentFYtotal - prevFY_total) / currentFYtotal) * 100, 1, MidpointRounding.AwayFromZero), FYLabel, FormatNumber(prevFY_total))
+                        w = String.Format(", which is an increase of {0}% from {1}(${2})", Math.Round(((currentFYtotal - prevFY_total) * 100 / prevFY_total), 1, MidpointRounding.ToEven), FYLabel, FormatNumber(prevFY_total))
                     End If
                 End If
             End If
