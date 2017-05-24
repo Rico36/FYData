@@ -223,12 +223,12 @@ Public Class frmMain
                     End If
 
 
-                    If sheetName = "EA-Surveillance Systems" Then
+                    If sheetName = "EA- Surveillance Systems" Then
                         ReadSurveillanceSheet(oSheet, observations2)
                         If Not observations2(0) = String.Empty Or Not observations2(1) = String.Empty Then
                             Using w As StreamWriter = File.AppendText(apppath & "\" & GetFileName(f) & ".txt")
                                 If Not observations2(0) = String.Empty Then
-                                    LogText(String.Format("Surveillance Portfolio: {0}", observations2(0)), w)
+                                    LogText(String.Format("[Surveillance Portfolio]- {0}", observations2(0)), w)
                                 End If
                             End Using
                         End If
@@ -862,20 +862,9 @@ Public Class frmMain
             Dim columnCount As Integer = oSheet.UsedRange.Columns.Count
             Dim rows As Excel.Range = oSheet.UsedRange.Rows
             Dim n As Integer = 0
-            Dim total As Double = 0, totalProjected As Double = 0
+            Dim prevFY_total As Double = 0, currentFYtotal As Double = 0
             Dim names As String = ""
             Dim charsToTrim() As Char = {"."c, " "c}
-
-            Dim vrF As Excel.Range = oSheet.Range("D7", "D7")
-            Dim words() As String = vrF.Value2.Split()
-            Dim FYLabel2 As String = words(1)
-
-            vrF = oSheet.Range("G7", "G7")
-            words = vrF.Value2.Split()
-            Dim FYLabel As String = words(2)
-
-            Dim vr As Excel.Range = oSheet.Range("A8", "A8")
-            Dim Org As String = vr.Value2.ToString()
 
             Dim row As Integer
             'Find the first row that contains the word "CIO" by itself in the column A.  
@@ -883,17 +872,28 @@ Public Class frmMain
             'If not found,look for the words "Row Labels" (multiple spreadsheet versions were created in the past). Dont blame me. 
             If row < 1 Then row = FindLabelRowNumber(oSheet, "Row Labels", "A1", "A20")
 
-            If row < 1 Then row = 7  ' in case we couldn't find the starting row we must default to row 7. 
-            row = row + 2
+            If row < 1 Then row = 5  ' in case we couldn't find the starting row we must default to row 5. 
+
+            Dim vrF As Excel.Range = oSheet.Range("D" & row, "D" & row)
+            Dim words() As String = vrF.Value2.Split()
+            Dim FYLabel2 As String = words(2)
+
+            vrF = oSheet.Range("B" & row, "B" & row)
+            words = vrF.Value2.Split()
+            Dim FYLabel As String = words(2)
+
+            Dim vr As Excel.Range = oSheet.Range("A" & row, "A" & row)
+            Dim Org As String = vr.Value2.ToString()
 
 
+            row = row + 1
             For rowNo As Integer = row To rowCount + 10
                 Dim value_range As Excel.Range = oSheet.Range("A" & rowNo, "G" & rowNo)
                 Dim array As Object = value_range.Value2
 
-                If array(1, 1) = "Grand Total" Then ' This a grand total
-                    totalProjected = CDbl(array(1, 4))
-                    total = CDbl(array(1, 7))
+                If array(1, 1) = "Grand Total" Then ' This a grand prevFY_total
+                    currentFYtotal = CDbl(array(1, 4))
+                    prevFY_total = CDbl(array(1, 2))
                     Exit For
                 End If
 
@@ -905,25 +905,25 @@ Public Class frmMain
             Next
             Dim msg As String
             Dim w As String = ""
-            If total > 0 And totalProjected > 0 Then
-                If Not total = totalProjected Then
-                    If total > totalProjected Then  ' total projected is the future FY
-                        w = String.Format(", and a {0} budget request of {1} which is a decrease of {2}%", FYLabel2, FormatNumber(totalProjected), Math.Round((total - totalProjected) / Math.Abs(total) * 100), 2)
+            If prevFY_total > 0 And currentFYtotal > 0 Then
+                If Not prevFY_total = currentFYtotal Then
+                    If prevFY_total > currentFYtotal Then  ' prevFY_total projected is the future FY
+                        w = String.Format(", which is a decrease of {0}% from {1}(${2})", Math.Round(((prevFY_total - currentFYtotal) / currentFYtotal) * 100, 1, MidpointRounding.AwayFromZero), FYLabel, FormatNumber(prevFY_total))
                     Else
-                        w = String.Format(", and a {0} budget request of {1} which is an increase of {2}%", FYLabel2, FormatNumber(totalProjected), Math.Round((totalProjected - total) / Math.Abs(totalProjected) * 100), 2)
+                        w = String.Format(", which is an increase of {0}% from {1}(${2})", Math.Round(((currentFYtotal - prevFY_total) / currentFYtotal) * 100, 1, MidpointRounding.AwayFromZero), FYLabel, FormatNumber(prevFY_total))
                     End If
                 End If
             End If
 
 
             If n > 5 Then
-                msg = String.Format("There are {0} systems in the portfolio supporting Public Health Surveillance activities for {1} with a total {2} budget of {3}{4}.", n, Org, FYLabel, FormatNumber(total), w)
+                msg = String.Format("There are {0} systems in the portfolio supporting Public Health Surveillance activities for {1} with a total {2} budget of {3}{4}.", n, Org, FYLabel, FormatNumber(prevFY_total), w)
             ElseIf n > 1 Then
                 names = ReplaceLastOccurrence(names, "|", " and")
                 names = names.Replace("|", ",")
-                msg = String.Format("The following {0} systems in the portfolio supports Public Health Surveillance activities for {1} with a total {2} budget of {3}{4}:   {5}.", n, Org, FYLabel, FormatNumber(total), w, names)
+                msg = String.Format("The following {0} systems in the portfolio support Public Health Surveillance activities with a total {1} budget of {2}{3}:   {4}.", n, FYLabel2, FormatNumber(currentFYtotal), w, names)
             Else
-                msg = String.Format("The [system] {0} supports Public Health Surveillance activities for {1} with an {2} budget of {3}{4}.", names, Org, FYLabel, FormatNumber(total), w)
+                msg = String.Format("The [system] {0} supports Public Health Surveillance activities with an {1} budget of {2}{3}.", names, FYLabel2, FormatNumber(currentFYtotal), w)
             End If
             obs(0) = msg
 
