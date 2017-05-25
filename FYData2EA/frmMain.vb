@@ -917,7 +917,7 @@ Public Class frmMain
 
 
             If n > 5 Then
-                msg = String.Format("There are {0} systems in the portfolio supporting Public Health Surveillance activities for {1} with a total {2} budget of {3}{4}.", n, Org, FYLabel, FormatNumber(prevFY_total), w)
+                msg = String.Format("There are {0} systems in the portfolio supporting Public Health Surveillance activities with a total {1} budget of {2}{3}.", n, FYLabel2, FormatNumber(currentFYtotal), w)
             ElseIf n > 1 Then
                 names = ReplaceLastOccurrence(names, "|", " and")
                 names = names.Replace("|", ",")
